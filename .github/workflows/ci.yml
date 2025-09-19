@@ -38,7 +38,7 @@ jobs:
       - name: Compute affected projects
         id: affected
         run: |
-          pnpm nx print-affected --type=affected --select=projects > affected.txt
+          pnpm nx print-affected --select=projects > affected.txt
           echo "list=$(cat affected.txt)" >> $GITHUB_OUTPUT
 
       - name: Affected lint/test/build
