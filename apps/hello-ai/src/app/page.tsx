@@ -79,7 +79,7 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
-      <h1 className="text-2xl font-bold mb-6">Hello AI 👋</h1>
+      <h1 className="text-2xl font-bold mb-6">Joe-bot 👋</h1>
 
       <div className="w-full max-w-md bg-white shadow rounded-lg p-4 flex flex-col gap-4">
         <div className="flex items-center justify-between">
