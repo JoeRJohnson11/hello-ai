@@ -8,6 +8,7 @@ type ChatMsg = {
   role: "user" | "assistant";
   text: string;
   ts: number;
+  kind?: "normal" | "thinking" | "away" | "error";
 };
 
 function uid() {
@@ -20,18 +21,25 @@ export default function Page() {
       id: uid(),
       role: "assistant",
       ts: Date.now(),
-      text: "Joe's not here right now",
+      text: "Joe's bot here right now. Leave a message!",
+      kind: "away",
     },
   ]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const endRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     textareaRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 3000);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -59,6 +67,7 @@ export default function Page() {
       role: "assistant",
       ts: Date.now(),
       text: "Joe-bot is thinking…",
+      kind: "thinking",
     };
 
     setMessages((prev) => [...prev, userMsg, pendingMsg]);
@@ -81,7 +90,7 @@ export default function Page() {
       setMessages((prev) =>
         prev.map((m) =>
           m.id === pendingId
-            ? { ...m, text: text || "…(no response)" }
+            ? { ...m, kind: "normal", text: text || "…(no response)" }
             : m
         )
       );
@@ -91,7 +100,7 @@ export default function Page() {
       setMessages((prev) =>
         prev.map((m) =>
           m.id === pendingId
-            ? { ...m, text: "⚠️ I hit an issue calling /api/chat. Check the server logs." }
+            ? { ...m, kind: "error", text: "⚠️ I hit an issue calling /api/chat. Check the server logs." }
             : m
         )
       );
@@ -116,7 +125,21 @@ export default function Page() {
     setTimeout(() => textareaRef.current?.focus(), 0);
   }
 
-return (
+  return isLoading ? (
+    <main className="flex min-h-[100dvh] items-center justify-center bg-zinc-950 text-zinc-100">
+      <div className="flex flex-col items-center gap-4">
+        <Image
+          src="/joe-head.png"
+          alt="Loading Joe-bot"
+          width={96}
+          height={96}
+          priority
+          className="animate-spin"
+        />
+        <span className="text-sm text-zinc-400">Waking up Joe-bot…</span>
+      </div>
+    </main>
+  ) : (
     <main className="w-full min-h-[100dvh] overflow-x-hidden bg-zinc-950 text-zinc-100">
       <div className="mx-auto flex w-full min-h-[100dvh] max-w-3xl flex-col px-4 py-8">
         <header className="mb-4 flex items-start justify-between gap-3">
@@ -162,7 +185,7 @@ return (
                         : "max-w-[85%] whitespace-pre-wrap rounded-2xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm leading-relaxed text-zinc-100"
                     }
                   >
-                    {m.text === "Joe-bot is thinking…" ? (
+                    {m.kind === "thinking" ? (
                       <div className="flex items-center gap-2">
                         <Image
                           src="/joe-head.png"
@@ -175,7 +198,7 @@ return (
                       </div>
                     ) : (
                       <>
-                        {m.text === "Joe's not here right now" && (
+                        {m.kind === "away" && (
                           <span className="mr-2 opacity-70" aria-hidden>
                             ⏳
                           </span>
@@ -210,7 +233,7 @@ return (
                     send();
                   }
                 }}
-                placeholder="Ask to see what Joe would say. (Enter to send)"
+                placeholder="Ask anything to see what Joe would say. (Enter to send)"
                 className="min-h-[44px] w-full resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-base sm:text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
               />
 
