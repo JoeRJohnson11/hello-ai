@@ -80,3 +80,90 @@ And join the Nx community:
 - [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
 - [Our Youtube channel](https://www.youtube.com/@nxdevtools)
 - [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+# 🤖 Joe-bot
+
+Joe-bot is a playful AI chat app built as a personal experiment in modern web development, AI integration, and Nx-powered workflows.
+
+It’s intentionally opinionated, a little weird, and very much a **test project** — designed to explore:
+- Nx + Next.js at scale
+- OpenAI-powered chat APIs
+- CI, caching, and Nx Cloud in real life
+- UI iteration across desktop and mobile
+- Shipping fast, fixing later 😄
+
+![Joe-bot](apps/hello-ai/public/joe-head.png)
+
+---
+
+## What this app does
+
+- 💬 A simple chat UI backed by OpenAI
+- 🧠 A “Joe-style” personality layer
+- ⚡ Fast local dev and CI with Nx
+- ☁️ Remote caching via Nx Cloud
+- 📱 Mobile-friendly (eventually…)
+
+This is **not** production software. It’s a sandbox.
+
+---
+
+## Running locally
+
+Install dependencies:
+
+```sh
+pnpm install
+```
+
+Start the app:
+
+```sh
+pnpm nx dev hello-ai
+```
+
+The app will be available at:
+```
+http://localhost:3000
+```
+
+---
+
+## Environment variables
+
+Create a `.env.local` file in `apps/hello-ai`:
+
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+---
+
+## Useful Nx commands
+
+```sh
+pnpm nx graph
+pnpm nx affected -t lint test build
+pnpm nx show project hello-ai
+```
+
+---
+
+## Why Nx?
+
+This project uses Nx to:
+- Keep builds fast with local + remote caching
+- Run only what’s affected in CI
+- Make experimentation less painful
+
+If you’re curious, check out:
+👉 https://nx.dev
+
+---
+
+## Disclaimer
+
+Joe-bot says dumb things on purpose.  
+If it offends you, that’s a feature — not a bug.
+
+Ship fast. Have fun. Break things.
