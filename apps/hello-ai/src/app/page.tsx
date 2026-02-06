@@ -35,7 +35,7 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    endRef.current?.scrollIntoView?.({ behavior: "smooth" });
   }, [messages, isSending]);
 
   const canSend = useMemo(
@@ -134,7 +134,7 @@ export default function Page() {
               <h1 className="text-2xl font-semibold tracking-tight">Joe-bot</h1>
             </div>
             <p className="mt-1 text-sm text-zinc-400">
-              It's like Joe, but its bot
+              It&apos;s like Joe, but its bot
             </p>
           </div>
 
