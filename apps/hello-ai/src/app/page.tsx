@@ -6,7 +6,7 @@ import Image from "next/image";
 type ChatMsg = {
   id: string;
   role: "user" | "assistant";
-  text: string;
+  text: string | React.ReactNode;
   ts: number;
   kind?: "normal" | "thinking" | "away" | "error";
 };
@@ -21,7 +21,11 @@ export default function Page() {
       id: uid(),
       role: "assistant",
       ts: Date.now(),
-      text: "Joe's bot here right now. Can I help?",
+      text: (
+        <>
+          Joe&apos;s <em>bot</em> here right now. Can I help?
+        </>
+      ),
       kind: "away",
     },
   ]);
@@ -157,7 +161,7 @@ export default function Page() {
               <h1 className="text-2xl font-semibold tracking-tight">Joe-bot</h1>
             </div>
             <p className="mt-1 text-sm text-zinc-400">
-              It&apos;s like Joe, but its bot
+              It&apos;s like Joe, but its <em>bot</em>
             </p>
           </div>
 
