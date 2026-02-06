@@ -70,3 +70,8 @@ pre {
   border-radius: 0.5rem;
   overflow-x: auto;
 }
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
