@@ -1,11 +1,10 @@
-const { Config } = require('jest');
 const nextJest = require('next/jest.js').default ?? require('next/jest.js');
 
 const createJestConfig = nextJest({
   dir: './',
 });
 
-const config: typeof Config = {
+const config = {
   displayName: '@hello-ai/hello-ai',
   preset: '../../jest.preset.js',
   transform: {
