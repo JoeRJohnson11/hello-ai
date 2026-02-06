@@ -1,209 +1,99 @@
-"use client";
+import OpenAI from "openai";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-type ChatMsg = {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
-  ts: number;
-};
+type ChatRequest = { message?: string };
 
-function uid() {
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
+export async function POST(req: Request) {
+  try {
+    const body = (await req.json()) as ChatRequest;
+    const msg = (body.message ?? "").trim();
 
-export default function Page() {
-  const [messages, setMessages] = useState<ChatMsg[]>(() => [
-    {
-      id: uid(),
-      role: "assistant",
-      ts: Date.now(),
-      text: "Hey — I’m Joe-bot. What are you trying to ship?",
-    },
-  ]);
-  const [input, setInput] = useState("");
-  const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const endRef = useRef<HTMLDivElement | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isSending]);
-
-  const canSend = useMemo(() => !isSending && input.trim().length > 0, [isSending, input]);
-
-  async function send() {
-    const msg = input.trim();
-    if (!msg || isSending) return;
-
-    setError(null);
-    setIsSending(true);
-    setInput("");
-
-    const userMsg: ChatMsg = { id: uid(), role: "user", ts: Date.now(), text: msg };
-    setMessages((prev) => [...prev, userMsg]);
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
+    if (!msg) {
+      return new Response(JSON.stringify({ error: "Missing 'message'." }), {
+        status: 400,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg }),
       });
-
-      const payload = (await res.json().catch(() => ({}))) as { text?: string; error?: string };
-
-      if (!res.ok) {
-        throw new Error(payload?.error || `Request failed (${res.status})`);
-      }
-
-      const text = (payload?.text ?? "").trim();
-      const assistantMsg: ChatMsg = {
-        id: uid(),
-        role: "assistant",
-        ts: Date.now(),
-        text: text || "…(no response)",
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Something went wrong.";
-      setError(msg);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: uid(),
-          role: "assistant",
-          ts: Date.now(),
-          text: "⚠️ I hit an issue. Try again, or tell me what you were attempting and I’ll suggest a different approach.",
-        },
-      ]);
-    } finally {
-      setIsSending(false);
-      // bring focus back for fast iteration
-      setTimeout(() => textareaRef.current?.focus(), 0);
     }
+
+    // CI-friendly: don't call external services in CI
+    if (process.env.CI === "true") {
+      return new Response(JSON.stringify({ text: `CI echo: ${msg}` }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return new Response(
+        JSON.stringify({
+          error:
+            "OPENAI_API_KEY not found. Ensure .env.local is configured (repo root or apps/hello-ai) and restart dev server.",
+        }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const client = new OpenAI({ apiKey });
+
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.3,
+      max_tokens: 300,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are Joe-bot. Speak in a confident, playful, self-aware voice inspired by Joe.\n\n" +
+            "Hard rule (always):\n" +
+            "- Every response MUST start with ONE opening phrase from the list below (rotate them).\n" +
+            "- After the opening phrase, give a concise, pragmatic answer (3–6 sentences max).\n" +
+            "- Be opinionated but fair; explain tradeoffs briefly if needed.\n" +
+            "- Keep it clean, professional, and confident.\n\n" +
+            "Opening phrases (pick one every response):\n" +
+            "- If I were Joe, and I almost am,\n" +
+            "- The amazing and powerful Joe would\n" +
+            "- Not everyone can be Joe, but if they were they'd be rich and they'd\n" +
+            "- If Joe were in the room, he'd probably say\n" +
+            "- Speaking as Joe (spiritually, at least),\n" +
+            "- In a parallel universe where I am Joe,\n" +
+            "- Channeling Joe energy for a second,\n" +
+            "- If Joe were making the call, he'd\n" +
+            "- Wearing my best Joe impression, I'd\n" +
+            "- According to the Joe playbook, you'd\n" +
+            "- If Joe had five minutes, he'd\n" +
+            "- In true Joe fashion, I'd\n" +
+            "- The Joe-approved move here is to\n" +
+            "- Joe's instinct would be to\n" +
+            "- If you asked Joe over coffee, he'd\n" +
+            "- In the Joe-verse, the obvious move is to\n" +
+            "- Joe would cut through the noise and\n" +
+            "- From a very Joe point of view,\n" +
+            "- If Joe were optimizing for results, he'd\n" +
+            "- Joe's short answer is to\n" +
+            "- The Joe way to think about this is to\n\n" +
+            "Style notes:\n" +
+            "- Start exactly with the chosen opening phrase (no text before it).\n" +
+            "- Keep answers tight and practical.\n" +
+            "- Avoid buzzwords unless they add clarity.\n"
+        },
+        { role: "user", content: msg },
+      ],
+    });
+
+    const text =
+      completion.choices?.[0]?.message?.content?.trim() ?? "…(no response)";
+
+    return new Response(JSON.stringify({ text }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err: unknown) {
+    console.error("/api/chat error:", err);
+    const message = err instanceof Error ? err.message : "Unknown server error";
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-
-  function clearChat() {
-    setError(null);
-    setInput("");
-    setIsSending(false);
-    setMessages([
-      {
-        id: uid(),
-        role: "assistant",
-        ts: Date.now(),
-        text: "Fresh slate. What are you trying to ship?",
-      },
-    ]);
-    setTimeout(() => textareaRef.current?.focus(), 0);
-  }
-
-  return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100">
-      <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-4 py-8">
-        <header className="mb-4 flex items-start justify-between gap-3">
-          <div>
-            <div className="text-xs uppercase tracking-wider text-zinc-500">hello-ai</div>
-            <h1 className="text-2xl font-semibold tracking-tight">Joe-bot</h1>
-            <p className="mt-1 text-sm text-zinc-400">
-              Pragmatic answers. Concrete steps. Minimal fluff.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={clearChat}
-              className="rounded-full border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs text-zinc-300 hover:border-zinc-700"
-              title="Clear conversation"
-            >
-              Clear
-            </button>
-            <span className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs text-zinc-300">
-              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
-              Local
-            </span>
-          </div>
-        </header>
-
-        <section className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/50 shadow-sm">
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-3">
-              {messages.map((m) => (
-                <div key={m.id} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
-                  <div
-                    className={
-                      m.role === "user"
-                        ? "max-w-[85%] whitespace-pre-wrap rounded-2xl bg-zinc-100 px-4 py-3 text-sm leading-relaxed text-zinc-900 shadow"
-                        : "max-w-[85%] whitespace-pre-wrap rounded-2xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm leading-relaxed text-zinc-100"
-                    }
-                  >
-                    {m.text}
-                  </div>
-                </div>
-              ))}
-
-              {isSending && (
-                <div className="flex justify-start">
-                  <div className="max-w-[85%] rounded-2xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm text-zinc-300">
-                    Joe-bot is thinking<span className="animate-pulse">…</span>
-                  </div>
-                </div>
-              )}
-
-              <div ref={endRef} />
-            </div>
-          </div>
-
-          <div className="border-t border-zinc-800 p-4">
-            {error && (
-              <div className="mb-3 rounded-xl border border-red-900/40 bg-red-950/40 px-3 py-2 text-sm text-red-200">
-                {error}
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-                placeholder="Ask Joe-bot… (Enter to send, Shift+Enter for newline)"
-                className="min-h-[44px] w-full resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
-              />
-
-              <button
-                type="button"
-                onClick={send}
-                disabled={!canSend}
-                className="rounded-xl bg-zinc-100 px-4 text-sm font-medium text-zinc-900 shadow disabled:opacity-40"
-              >
-                {isSending ? "…" : "Send"}
-              </button>
-            </div>
-
-            <div className="mt-2 text-xs text-zinc-500">
-              Tip: Ask for a plan, a quick draft, or a brutally practical tradeoff.
-            </div>
-          </div>
-        </section>
-
-        <footer className="mt-4 text-xs text-zinc-600">
-          This is a learning project. Don’t paste secrets.
-        </footer>
-      </div>
-    </main>
-  );
 }

@@ -1,142 +1,223 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 
-type Msg = { role: "user" | "assistant"; text: string };
+type ChatMsg = {
+  id: string;
+  role: "user" | "assistant";
+  text: string;
+  ts: number;
+};
 
-const STORAGE_KEY = "chat_messages_v1";
+function uid() {
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
 
-export default function Home() {
+export default function Page() {
+  const [messages, setMessages] = useState<ChatMsg[]>(() => [
+    {
+      id: uid(),
+      role: "assistant",
+      ts: Date.now(),
+      text: "Joe's not in right now. Leave a message and he'll get back to you.",
+    },
+  ]);
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<Msg[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Refs for UX
-  const listRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const endRef = useRef<HTMLDivElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // Load from localStorage on first mount
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed: Msg[] = JSON.parse(raw);
-        if (Array.isArray(parsed)) setMessages(parsed);
-      }
-    } catch {
-      // ignore parse errors
-    }
-    // autofocus input on mount
-    inputRef.current?.focus();
+    textareaRef.current?.focus();
   }, []);
 
-  // Persist messages whenever they change
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-    } catch {
-      // ignore write errors (e.g., private mode)
-    }
-    // Scroll to bottom when new messages arrive
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-  }, [messages]);
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isSending]);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!input.trim() || loading) return;
+  const canSend = useMemo(
+    () => !isSending && input.trim().length > 0,
+    [isSending, input]
+  );
 
-    const userMsg: Msg = { role: "user", text: input.trim() };
-    setMessages((m) => [...m, userMsg]);
+  async function send() {
+    const msg = input.trim();
+    if (!msg || isSending) return;
+
+    setError(null);
+    setIsSending(true);
     setInput("");
-    setLoading(true);
+
+    const userMsg: ChatMsg = { id: uid(), role: "user", ts: Date.now(), text: msg };
+
+    const pendingId = uid();
+    const pendingMsg: ChatMsg = {
+      id: pendingId,
+      role: "assistant",
+      ts: Date.now(),
+      text: "Joe-bot is thinking…",
+    };
+
+    setMessages((prev) => [...prev, userMsg, pendingMsg]);
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMsg.text }),
+        body: JSON.stringify({ message: msg }),
       });
-      const data = await res.json();
-      const assistant: Msg = {
-        role: "assistant",
-        text: data.text ?? "(no response)",
+
+      const payload = (await res.json().catch(() => ({}))) as {
+        text?: string;
+        error?: string;
       };
-      setMessages((m) => [...m, assistant]);
+
+      if (!res.ok) throw new Error(payload?.error || `Request failed (${res.status})`);
+
+      const text = (payload?.text ?? "").trim();
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === pendingId
+            ? { ...m, text: text || "…(no response)" }
+            : m
+        )
+      );
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Something went wrong.";
+      setError(msg);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === pendingId
+            ? { ...m, text: "⚠️ I hit an issue calling /api/chat. Check the server logs." }
+            : m
+        )
+      );
     } finally {
-      setLoading(false);
+      setIsSending(false);
+      setTimeout(() => textareaRef.current?.focus(), 0);
     }
   }
 
-  function onClear() {
-    setMessages([]);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // ignore
-    }
-    inputRef.current?.focus();
+  function clearChat() {
+    setError(null);
+    setInput("");
+    setIsSending(false);
+    setMessages([
+      {
+        id: uid(),
+        role: "assistant",
+        ts: Date.now(),
+        text: "Fresh slate. What are you trying to ship?",
+      },
+    ]);
+    setTimeout(() => textareaRef.current?.focus(), 0);
   }
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
-      <h1 className="text-2xl font-bold mb-6">Joe-bot 👋</h1>
-
-      <div className="w-full max-w-md bg-white shadow rounded-lg p-4 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            {messages.length} message{messages.length === 1 ? "" : "s"}
-          </p>
-          <button
-            onClick={onClear}
-            className="text-sm text-gray-600 hover:text-gray-900 underline"
-            title="Clear conversation"
-          >
-            Clear
-          </button>
-        </div>
-
-        <div
-          ref={listRef}
-          className="flex-1 overflow-y-auto border rounded p-2 bg-gray-100 h-64 space-y-2"
-        >
-          {messages.length === 0 && (
-            <p className="text-gray-500 italic">
-              Say something to get started…
-            </p>
-          )}
-          {messages.map((m, i) => (
-            <div key={i} className={m.role === "user" ? "text-right" : "text-left"}>
-              <span
-                className={`inline-block rounded-2xl px-3 py-2 ${
-                  m.role === "user"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-black"
-                }`}
-              >
-                {m.text}
-              </span>
+    <main className="min-h-screen bg-zinc-950 text-zinc-100">
+      <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-4 py-8">
+        <header className="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-zinc-500">HELLO-AI / test project</div>
+            <div className="flex items-center gap-2">
+              <Image
+                src="/joe-head.png"
+                alt="Joe headshot"
+                width={28}
+                height={28}
+                priority
+                className="rounded-full border border-zinc-800"
+              />
+              <h1 className="text-2xl font-semibold tracking-tight">Joe-bot</h1>
             </div>
-          ))}
-          {loading && <p className="text-sm text-gray-500">Thinking…</p>}
-        </div>
+            <p className="mt-1 text-sm text-zinc-400">
+              It's like Joe, but its bot
+            </p>
+          </div>
 
-        <form className="flex gap-2" onSubmit={onSubmit}>
-          <input
-            ref={inputRef}
-            className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Type a message…"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={loading}
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-            disabled={loading || !input.trim()}
-          >
-            Send
-          </button>
-        </form>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={clearChat}
+              className="rounded-full border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs text-zinc-300 hover:border-zinc-700"
+              title="Clear conversation"
+            >
+              Clear
+            </button>
+          </div>
+        </header>
+
+        <section className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/50 shadow-sm">
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="space-y-3">
+              {messages.map((m) => (
+                <div key={m.id} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
+                  <div
+                    className={
+                      m.role === "user"
+                        ? "max-w-[85%] whitespace-pre-wrap rounded-2xl bg-zinc-100 px-4 py-3 text-sm leading-relaxed text-zinc-900 shadow"
+                        : "max-w-[85%] whitespace-pre-wrap rounded-2xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm leading-relaxed text-zinc-100"
+                    }
+                  >
+                    {m.text === "Joe-bot is thinking…" ? (
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src="/joe-head.png"
+                          alt="Joe thinking"
+                          width={24}
+                          height={24}
+                          className="animate-spin"
+                        />
+                        <span className="text-zinc-400">thinking…</span>
+                      </div>
+                    ) : (
+                      m.text
+                    )}
+                  </div>
+                </div>
+              ))}
+
+
+              <div ref={endRef} />
+            </div>
+          </div>
+
+          <div className="border-t border-zinc-800 p-4">
+            {error && (
+              <div className="mb-3 rounded-xl border border-red-900/40 bg-red-950/40 px-3 py-2 text-sm text-red-200">
+                {error}
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    send();
+                  }
+                }}
+                placeholder="Ask to see what Joe would say. (Enter to send)"
+                className="min-h-[44px] w-full resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
+              />
+
+              <button
+                type="button"
+                onClick={send}
+                disabled={!canSend}
+                className="rounded-xl bg-zinc-100 px-4 text-sm font-medium text-zinc-900 shadow disabled:opacity-40"
+              >
+                {isSending ? "…" : "Send"}
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );
