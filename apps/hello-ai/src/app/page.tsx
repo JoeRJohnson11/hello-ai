@@ -234,14 +234,14 @@ export default function Page() {
                   }
                 }}
                 placeholder="Ask anything to see what Joe would say. (Enter to send)"
-                className="min-h-[44px] w-full resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-base sm:text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
+                className="min-h-[44px] flex-1 resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-base sm:text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
               />
 
               <button
                 type="button"
                 onClick={send}
                 disabled={!canSend}
-                className="rounded-xl bg-zinc-100 px-4 text-sm font-medium text-zinc-900 shadow disabled:opacity-40"
+                className="shrink-0 rounded-xl bg-zinc-100 px-4 text-sm font-medium text-zinc-900 shadow disabled:opacity-40"
               >
                 {isSending ? "…" : "Send"}
               </button>
