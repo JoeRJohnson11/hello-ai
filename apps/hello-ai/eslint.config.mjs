@@ -1,21 +1,17 @@
-import { FlatCompat } from '@eslint/eslintrc';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import js from '@eslint/js';
-import { fixupConfigRules } from '@eslint/compat';
 import nx from '@nx/eslint-plugin';
 import baseConfig from '../../eslint.config.mjs';
-const compat = new FlatCompat({
-  baseDirectory: dirname(fileURLToPath(import.meta.url)),
-  recommendedConfig: js.configs.recommended,
-});
+
+const nextConfig = nx.configs['flat/next'];
+const nextArray = Array.isArray(nextConfig) ? nextConfig : nextConfig ? [nextConfig] : [];
 
 export default [
-  ...fixupConfigRules(compat.extends('next')),
-  ...fixupConfigRules(compat.extends('next/core-web-vitals')),
+  // Workspace-wide rules (formatting, import ordering, etc.)
   ...baseConfig,
-  ...nx.configs['flat/react-typescript'],
+
+  // Nx-maintained flat config for Next.js + React + TypeScript
+  ...nextArray,
+
   {
-    ignores: ['.next/**/*'],
+    ignores: ['.next/**/*', 'out/**/*'],
   },
 ];
