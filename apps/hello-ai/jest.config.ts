@@ -5,7 +5,7 @@ const createJestConfig = nextJest({
   dir: './',
 });
 
-const config: Config = {
+const config: typeof Config = {
   displayName: '@hello-ai/hello-ai',
   preset: '../../jest.preset.js',
   transform: {
