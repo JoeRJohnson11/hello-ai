@@ -1,4 +1,4 @@
-import './global.css';
+import "./global.css";
 
 export const metadata = {
   title: "Joe-bot",
@@ -12,9 +12,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="w-full overflow-x-hidden">
-        {children}
-      </body>
+      <body className="w-full overflow-x-hidden">{children}</body>
     </html>
   );
 }

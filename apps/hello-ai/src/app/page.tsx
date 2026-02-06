@@ -20,7 +20,7 @@ export default function Page() {
       id: uid(),
       role: "assistant",
       ts: Date.now(),
-      text: "Joe's not in right now. Leave a message and he'll get back to you.",
+      text: "Joe's not here right now",
     },
   ]);
   const [input, setInput] = useState("");
@@ -174,7 +174,14 @@ export default function Page() {
                         <span className="text-zinc-400">thinking…</span>
                       </div>
                     ) : (
-                      m.text
+                      <>
+                        {m.text === "Joe's not here right now" && (
+                          <span className="mr-2 opacity-70" aria-hidden>
+                            ⏳
+                          </span>
+                        )}
+                        <span>{m.text}</span>
+                      </>
                     )}
                   </div>
                 </div>
