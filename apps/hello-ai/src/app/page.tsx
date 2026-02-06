@@ -116,9 +116,9 @@ export default function Page() {
     setTimeout(() => textareaRef.current?.focus(), 0);
   }
 
-  return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100">
-      <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-4 py-8">
+return (
+    <main className="w-full min-h-[100dvh] overflow-x-hidden bg-zinc-950 text-zinc-100">
+      <div className="mx-auto flex w-full min-h-[100dvh] max-w-3xl flex-col px-4 py-8">
         <header className="mb-4 flex items-start justify-between gap-3">
           <div>
             <div className="text-xs uppercase tracking-wider text-zinc-500">HELLO-AI / test project</div>
@@ -211,7 +211,7 @@ export default function Page() {
                   }
                 }}
                 placeholder="Ask to see what Joe would say. (Enter to send)"
-                className="min-h-[44px] w-full resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
+                className="min-h-[44px] w-full resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-base sm:text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
               />
 
               <button
