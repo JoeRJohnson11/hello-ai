@@ -21,7 +21,7 @@ export default function Page() {
       id: uid(),
       role: "assistant",
       ts: Date.now(),
-      text: "Joe's bot here right now. Leave a message!",
+      text: "Joe's bot here right now. Can I help?",
       kind: "away",
     },
   ]);
@@ -194,7 +194,7 @@ export default function Page() {
                           height={24}
                           className="animate-spin"
                         />
-                        <span className="text-zinc-400">thinking…</span>
+                        <span className="text-zinc-400">Thinking like Joe…</span>
                       </div>
                     ) : (
                       <>
@@ -233,7 +233,7 @@ export default function Page() {
                     send();
                   }
                 }}
-                placeholder="Ask anything to see what Joe would say. (Enter to send)"
+                placeholder="Ask anything to see what Joe would say."
                 className="min-h-[44px] flex-1 resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-base sm:text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
               />
 
