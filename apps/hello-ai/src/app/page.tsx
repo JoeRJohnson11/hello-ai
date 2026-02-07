@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { Button, Loader, tokens } from "@hello-ai/shared";
 
 type ChatMsg = {
   id: string;
@@ -63,14 +64,19 @@ export default function Page() {
     setIsSending(true);
     setInput("");
 
-    const userMsg: ChatMsg = { id: uid(), role: "user", ts: Date.now(), text: msg };
+    const userMsg: ChatMsg = {
+      id: uid(),
+      role: "user",
+      ts: Date.now(),
+      text: msg,
+    };
 
     const pendingId = uid();
     const pendingMsg: ChatMsg = {
       id: pendingId,
       role: "assistant",
       ts: Date.now(),
-      text: "Joe-bot is thinking…",
+      text: "Thinking like Joe-bot…",
       kind: "thinking",
     };
 
@@ -88,7 +94,8 @@ export default function Page() {
         error?: string;
       };
 
-      if (!res.ok) throw new Error(payload?.error || `Request failed (${res.status})`);
+      if (!res.ok)
+        throw new Error(payload?.error || `Request failed (${res.status})`);
 
       const text = (payload?.text ?? "").trim();
       setMessages((prev) =>
@@ -104,7 +111,11 @@ export default function Page() {
       setMessages((prev) =>
         prev.map((m) =>
           m.id === pendingId
-            ? { ...m, kind: "error", text: "⚠️ I hit an issue calling /api/chat. Check the server logs." }
+            ? {
+                ...m,
+                kind: "error",
+                text: "⚠️ I hit an issue calling /api/chat. Check the server logs.",
+              }
             : m
         )
       );
@@ -130,7 +141,10 @@ export default function Page() {
   }
 
   return isLoading ? (
-    <main className="flex min-h-[100dvh] items-center justify-center bg-zinc-950 text-zinc-100">
+    <main
+      className="flex min-h-[100dvh] items-center justify-center bg-zinc-950 text-zinc-100"
+      style={{ borderRadius: tokens.radius.md }}
+    >
       <div className="flex flex-col items-center gap-4">
         <Image
           src="/joe-head.png"
@@ -144,11 +158,16 @@ export default function Page() {
       </div>
     </main>
   ) : (
-    <main className="w-full min-h-[100dvh] overflow-x-hidden bg-zinc-950 text-zinc-100">
+    <main
+      className="w-full min-h-[100dvh] overflow-x-hidden bg-zinc-950 text-zinc-100"
+      style={{ borderRadius: tokens.radius.md }}
+    >
       <div className="mx-auto flex w-full min-h-[100dvh] max-w-3xl flex-col px-4 py-8">
         <header className="mb-4 flex items-start justify-between gap-3">
           <div>
-            <div className="text-xs uppercase tracking-wider text-zinc-500">HELLO-AI / test project</div>
+            <div className="text-xs uppercase tracking-wider text-zinc-500">
+              HELLO-AI / test project
+            </div>
             <div className="flex items-center gap-2">
               <Image
                 src="/joe-head.png"
@@ -166,14 +185,14 @@ export default function Page() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
+            <Button
               onClick={clearChat}
-              className="rounded-full border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs text-zinc-300 hover:border-zinc-700"
+              variant="secondary"
+              size="sm"
               title="Clear conversation"
             >
               Clear
-            </button>
+            </Button>
           </div>
         </header>
 
@@ -181,7 +200,10 @@ export default function Page() {
           <div className="flex-1 overflow-y-auto p-4">
             <div className="space-y-3">
               {messages.map((m) => (
-                <div key={m.id} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
+                <div
+                  key={m.id}
+                  className={m.role === "user" ? "flex justify-end" : "flex justify-start"}
+                >
                   <div
                     className={
                       m.role === "user"
@@ -193,12 +215,15 @@ export default function Page() {
                       <div className="flex items-center gap-2">
                         <Image
                           src="/joe-head.png"
-                          alt="Joe thinking"
-                          width={24}
-                          height={24}
-                          className="animate-spin"
+                          alt="Joe-bot thinking"
+                          width={18}
+                          height={18}
+                          className="animate-spin rounded-full border border-zinc-800"
                         />
-                        <span className="text-zinc-400">Thinking like Joe…</span>
+                        <Loader
+                          size={18}
+                          label={typeof m.text === "string" ? m.text : "Thinking like Joe-bot…"}
+                        />
                       </div>
                     ) : (
                       <>
@@ -213,7 +238,6 @@ export default function Page() {
                   </div>
                 </div>
               ))}
-
 
               <div ref={endRef} />
             </div>
@@ -241,14 +265,9 @@ export default function Page() {
                 className="min-h-[44px] flex-1 resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-base sm:text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
               />
 
-              <button
-                type="button"
-                onClick={send}
-                disabled={!canSend}
-                className="shrink-0 rounded-xl bg-zinc-100 px-4 text-sm font-medium text-zinc-900 shadow disabled:opacity-40"
-              >
+              <Button onClick={send} disabled={!canSend} variant="primary" size="md">
                 {isSending ? "…" : "Send"}
-              </button>
+              </Button>
             </div>
           </div>
         </section>

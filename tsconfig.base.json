@@ -16,6 +16,11 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@hello-ai/source"]
+    "customConditions": ["@hello-ai/source"],
+    "baseUrl": ".",
+    "paths": {
+      "@hello-ai/shared": ["shared/src/index.ts"],
+      "@hello-ai/shared/*": ["shared/src/*"]
+    }
   }
 }

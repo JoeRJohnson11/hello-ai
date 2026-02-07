@@ -8,6 +8,9 @@
     },
     {
       "path": "./apps/hello-ai"
+    },
+    {
+      "path": "./shared"
     }
   ]
 }
