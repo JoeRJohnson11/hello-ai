@@ -76,7 +76,7 @@ export default function Page() {
       id: pendingId,
       role: "assistant",
       ts: Date.now(),
-      text: "Thinking like Joe-bot…",
+      text: "Thinking like Joe…",
       kind: "thinking",
     };
 
@@ -222,7 +222,7 @@ export default function Page() {
                         />
                         <Loader
                           size={18}
-                          label={typeof m.text === "string" ? m.text : "Thinking like Joe-bot…"}
+                          label={typeof m.text === "string" ? m.text : "Thinking like Joe…"}
                         />
                       </div>
                     ) : (
