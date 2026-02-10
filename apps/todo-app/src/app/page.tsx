@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useTodos } from '@hello-ai/shared';
+import { Button, tokens, useTodos, type TodoFilter } from '@hello-ai/shared';
+
+const FILTERS: TodoFilter[] = ['all', 'active', 'completed'];
 
 export default function Index() {
-  const { todos, addTodo, deleteTodo } = useTodos();
+  const { todos, filteredTodos, filter, setFilter, addTodo, toggleTodo, deleteTodo } = useTodos();
   const [input, setInput] = useState('');
 
   function handleAdd() {
@@ -13,9 +15,14 @@ export default function Index() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-start justify-center pt-16 px-4">
-      <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Todo App</h1>
+    <main className="min-h-[100dvh] bg-zinc-950 text-zinc-100">
+      <div className="mx-auto w-full max-w-lg px-4 py-8">
+        <header className="mb-6">
+          <div className="text-xs uppercase tracking-wider text-zinc-500">
+            HELLO-AI / todo-app
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">Todos</h1>
+        </header>
 
         <form
           onSubmit={(e) => {
@@ -29,43 +36,88 @@ export default function Index() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="What needs to be done?"
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
           />
-          <button
-            type="submit"
-            className="rounded-lg bg-blue-600 px-5 py-2 text-white font-medium hover:bg-blue-700 transition-colors"
-          >
+          <Button type="submit" variant="primary" size="md">
             Add
-          </button>
+          </Button>
         </form>
 
-        {todos.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">No todos yet. Add one above!</p>
-        ) : (
-          <ul className="space-y-2">
-            {todos.map((todo) => (
-              <li
-                key={todo.id}
-                className="flex items-center justify-between bg-white rounded-lg px-4 py-3 shadow-sm"
-              >
-                <span className="text-gray-800">{todo.text}</span>
-                <button
-                  onClick={() => deleteTodo(todo.id)}
-                  className="text-red-500 hover:text-red-700 transition-colors text-sm font-medium"
+        <div className="flex gap-1 mb-4">
+          {FILTERS.map((f) => (
+            <Button
+              key={f}
+              variant={filter === f ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setFilter(f)}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </Button>
+          ))}
+        </div>
+
+        <section
+          className="rounded-2xl border border-zinc-800 bg-zinc-950/50"
+          style={{ boxShadow: tokens.shadow.md }}
+        >
+          {filteredTodos.length === 0 ? (
+            <p className="text-zinc-500 text-sm text-center py-8">
+              {todos.length === 0
+                ? 'No todos yet. Add one above!'
+                : 'No matching todos.'}
+            </p>
+          ) : (
+            <ul className="divide-y divide-zinc-800">
+              {filteredTodos.map((todo) => (
+                <li
+                  key={todo.id}
+                  className="flex items-center gap-3 px-4 py-3"
                 >
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+                  <button
+                    type="button"
+                    onClick={() => toggleTodo(todo.id)}
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                      todo.completed
+                        ? 'border-zinc-600 bg-zinc-700 text-zinc-300'
+                        : 'border-zinc-700 bg-zinc-900 text-transparent hover:border-zinc-500'
+                    }`}
+                    style={{ borderRadius: tokens.radius.sm }}
+                    aria-label={todo.completed ? 'Mark incomplete' : 'Mark complete'}
+                  >
+                    {todo.completed && (
+                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+
+                  <span
+                    className={`flex-1 text-sm ${
+                      todo.completed ? 'line-through text-zinc-600' : 'text-zinc-100'
+                    }`}
+                  >
+                    {todo.text}
+                  </span>
+
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => deleteTodo(todo.id)}
+                  >
+                    Delete
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
         {todos.length > 0 && (
-          <p className="text-gray-400 text-sm mt-4 text-center">
-            {todos.length} {todos.length === 1 ? 'item' : 'items'}
+          <p className="text-zinc-500 text-xs mt-3 text-center">
+            {todos.filter((t) => !t.completed).length} remaining
           </p>
         )}
       </div>
-    </div>
+    </main>
   );
 }
