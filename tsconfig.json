@@ -11,6 +11,12 @@
     },
     {
       "path": "./shared"
+    },
+    {
+      "path": "./apps/todo-app-e2e"
+    },
+    {
+      "path": "./apps/todo-app"
     }
   ]
 }
