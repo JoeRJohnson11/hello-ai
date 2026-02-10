@@ -1,0 +1,14 @@
+{
+  "name": "@hello-ai/todo-app",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "next": "~16.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@hello-ai/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18"
+  }
+}
