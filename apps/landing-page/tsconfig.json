@@ -35,6 +35,9 @@
   "references": [
     {
       "path": "../../shared"
+    },
+    {
+      "path": "./tsconfig.e2e.json"
     }
   ],
   "exclude": [

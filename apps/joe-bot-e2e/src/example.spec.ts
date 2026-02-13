@@ -1,8 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-test('has title', async ({ page }) => {
+test('shows chat UI', async ({ page }) => {
   await page.goto('/');
 
-  // Expect h1 to contain a substring.
-  expect(await page.locator('h1').innerText()).toContain('Welcome');
+  await expect(page.locator('h1')).toContainText('Joe-bot');
+});
+
+test('has chat input and send controls', async ({ page }) => {
+  await page.goto('/');
+
+  const textarea = page.getByPlaceholder(/Ask anything/);
+  await expect(textarea).toBeVisible();
+
+  const sendButton = page.getByRole('button', { name: /Send/i });
+  await expect(sendButton).toBeVisible();
 });
