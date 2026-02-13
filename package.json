@@ -2,7 +2,9 @@
   "name": "@hello-ai/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev:all": "pnpm nx run-many -t dev -p joe-bot,landing-page,todo-app"
+  },
   "private": true,
   "dependencies": {
     "next": "16.1.6",

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, tokens, useTodos, type TodoFilter } from '@hello-ai/shared';
+import { Button } from '@hello-ai/shared-ui';
+import { tokens } from '@hello-ai/shared-design';
+import { useTodos, type TodoFilter } from '@hello-ai/todo-data-access';
 
 const FILTERS: TodoFilter[] = ['all', 'active', 'completed'];
 

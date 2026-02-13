@@ -3,23 +3,13 @@
   "compileOnSave": false,
   "files": [],
   "references": [
-    {
-      "path": "./apps/hello-ai-e2e"
-    },
-    {
-      "path": "./apps/hello-ai"
-    },
-    {
-      "path": "./shared"
-    },
-    {
-      "path": "./apps/todo-app-e2e"
-    },
-    {
-      "path": "./apps/todo-app"
-    },
-    {
-      "path": "./apps/landing-page"
-    }
+    {"path": "./apps/joe-bot-e2e"},
+    {"path": "./apps/joe-bot"},
+    {"path": "./apps/todo-app-e2e"},
+    {"path": "./apps/todo-app"},
+    {"path": "./apps/landing-page"},
+    {"path": "./libs/shared/ui"},
+    {"path": "./libs/shared/design"},
+    {"path": "./libs/todo/data-access"}
   ]
 }

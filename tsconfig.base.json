@@ -19,8 +19,12 @@
     "customConditions": ["@hello-ai/source"],
     "baseUrl": ".",
     "paths": {
-      "@hello-ai/shared": ["shared/src/index.ts"],
-      "@hello-ai/shared/*": ["shared/src/*"]
+      "@hello-ai/shared-ui": ["libs/shared/ui/src/index.ts"],
+      "@hello-ai/shared-ui/*": ["libs/shared/ui/src/*"],
+      "@hello-ai/shared-design": ["libs/shared/design/src/index.ts"],
+      "@hello-ai/shared-design/*": ["libs/shared/design/src/*"],
+      "@hello-ai/todo-data-access": ["libs/todo/data-access/src/index.ts"],
+      "@hello-ai/todo-data-access/*": ["libs/todo/data-access/src/*"]
     }
   }
 }

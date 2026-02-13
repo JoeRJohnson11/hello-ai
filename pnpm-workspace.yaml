@@ -1,5 +1,6 @@
 packages:
   - 'apps/*'
-  - 'shared'
+  - 'libs/shared/*'
+  - 'libs/todo/*'
 autoInstallPeers: true
 strictPeerDependencies: false

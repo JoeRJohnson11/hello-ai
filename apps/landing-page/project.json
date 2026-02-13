@@ -1,0 +1,9 @@
+{
+  "targets": {
+    "dev": {
+      "options": {
+        "command": "next dev -p 3011"
+      }
+    }
+  }
+}
