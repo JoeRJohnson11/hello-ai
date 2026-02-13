@@ -22,6 +22,10 @@ jobs:
         with:
           filter: tree:0
           fetch-depth: 0
+
+      - name: Set git safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
