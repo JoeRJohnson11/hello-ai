@@ -16,6 +16,7 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,9 +35,6 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
 
       - uses: nrwl/nx-set-shas@v4
 
