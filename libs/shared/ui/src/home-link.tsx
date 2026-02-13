@@ -27,7 +27,7 @@ export function HomeLink() {
   return (
     <a
       href={url}
-      className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:border-zinc-700"
+      className="inline-flex cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:border-zinc-500 hover:bg-zinc-800 hover:text-zinc-100 active:scale-[0.98] transition-all duration-150"
     >
       <span aria-hidden>⌂</span>
       Home

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, HomeLink } from '@hello-ai/shared-ui';
+import { AppHeader, Button } from '@hello-ai/shared-ui';
 import { tokens } from '@hello-ai/shared-design';
 import { useTodos, type TodoFilter } from '@hello-ai/todo-data-access';
 
@@ -19,17 +19,9 @@ export default function Index() {
   return (
     <main className="min-h-[100dvh] bg-zinc-950 text-zinc-100">
       <div className="mx-auto w-full max-w-lg px-4 py-8">
-        <header className="mb-6">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-xs uppercase tracking-wider text-zinc-500">
-                HELLO-AI / todo-app
-              </div>
-              <h1 className="text-2xl font-semibold tracking-tight">Todos</h1>
-            </div>
-            <HomeLink />
-          </div>
-        </header>
+        <AppHeader appName="todo-app" className="mb-6">
+          <h1 className="text-2xl font-semibold tracking-tight">Todos</h1>
+        </AppHeader>
 
         <form
           onSubmit={(e) => {
@@ -83,10 +75,10 @@ export default function Index() {
                   <button
                     type="button"
                     onClick={() => toggleTodo(todo.id)}
-                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                    className={`flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-md border transition-all duration-150 ${
                       todo.completed
-                        ? 'border-zinc-600 bg-zinc-700 text-zinc-300'
-                        : 'border-zinc-700 bg-zinc-900 text-transparent hover:border-zinc-500'
+                        ? 'border-zinc-600 bg-zinc-700 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-600 hover:text-zinc-100'
+                        : 'border-zinc-700 bg-zinc-900 text-transparent hover:border-zinc-500 hover:bg-zinc-700'
                     }`}
                     style={{ borderRadius: tokens.radius.sm }}
                     aria-label={todo.completed ? 'Mark incomplete' : 'Mark complete'}
