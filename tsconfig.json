@@ -17,6 +17,9 @@
     },
     {
       "path": "./apps/todo-app"
+    },
+    {
+      "path": "./apps/landing-page"
     }
   ]
 }
