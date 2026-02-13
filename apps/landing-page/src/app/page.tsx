@@ -11,7 +11,7 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Joe-bot Card */}
           <a
-            href={process.env.NEXT_PUBLIC_HELLO_AI_URL || 'https://hello-ai.vercel.app'}
+            href={process.env.NEXT_PUBLIC_HELLO_AI_URL || 'https://hello-ai-hello-ai.vercel.app'}
             className="group"
           >
             <div
@@ -31,7 +31,7 @@ export default function LandingPage() {
 
           {/* Todo App Card */}
           <a
-            href={process.env.NEXT_PUBLIC_TODO_APP_URL || 'https://todo-app-joe.vercel.app'}
+            href={process.env.NEXT_PUBLIC_TODO_APP_URL || 'https://hello-ai-todo-app.vercel.app'}
             className="group"
           >
             <div
