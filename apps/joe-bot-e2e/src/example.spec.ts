@@ -15,3 +15,13 @@ test('has chat input and send controls', async ({ page }) => {
   const sendButton = page.getByRole('button', { name: /Send/i });
   await expect(sendButton).toBeVisible();
 });
+
+test('has Home link in header', async ({ page }) => {
+  await page.goto('/');
+
+  const homeLink = page.getByRole('link', { name: 'Home' });
+  await homeLink.waitFor({ state: 'visible', timeout: 10000 });
+
+  await expect(homeLink).toBeVisible();
+  await expect(homeLink).toHaveAttribute('href', /.+/);
+});

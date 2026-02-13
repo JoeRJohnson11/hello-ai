@@ -3,6 +3,7 @@ import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
 
 // For CI, you may want to set BASE_URL to the deployed application.
+// todo-app dev runs on port 3012 (see apps/todo-app/project.json)
 const baseURL = process.env['BASE_URL'] || 'http://localhost:3012';
 
 /**

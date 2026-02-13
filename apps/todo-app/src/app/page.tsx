@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@hello-ai/shared-ui';
+import { Button, HomeLink } from '@hello-ai/shared-ui';
 import { tokens } from '@hello-ai/shared-design';
 import { useTodos, type TodoFilter } from '@hello-ai/todo-data-access';
 
@@ -20,10 +20,15 @@ export default function Index() {
     <main className="min-h-[100dvh] bg-zinc-950 text-zinc-100">
       <div className="mx-auto w-full max-w-lg px-4 py-8">
         <header className="mb-6">
-          <div className="text-xs uppercase tracking-wider text-zinc-500">
-            HELLO-AI / todo-app
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-xs uppercase tracking-wider text-zinc-500">
+                HELLO-AI / todo-app
+              </div>
+              <h1 className="text-2xl font-semibold tracking-tight">Todos</h1>
+            </div>
+            <HomeLink />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Todos</h1>
         </header>
 
         <form

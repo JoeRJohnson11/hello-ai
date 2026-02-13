@@ -31,3 +31,11 @@ test('can toggle todo completion', async ({ page }) => {
 
   await expect(page.getByRole('button', { name: 'Mark incomplete' })).toBeVisible();
 });
+
+test('has Home link in header', async ({ page }) => {
+  await page.goto('/');
+
+  const homeLink = page.getByRole('link', { name: 'Home' });
+  await expect(homeLink).toBeVisible();
+  await expect(homeLink).toHaveAttribute('href', /.+/);
+});
