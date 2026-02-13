@@ -1,6 +1,0 @@
-{
-  "buildCommand": "pnpm nx build landing-page",
-  "outputDirectory": "dist/apps/landing-page/.next",
-  "framework": "nextjs",
-  "installCommand": "pnpm install"
-}
