@@ -16,8 +16,11 @@ export function HomeLink() {
   );
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && isLocalHost(window.location.hostname)) {
-      setUrl(`http://${window.location.hostname}:${LOCAL_LANDING_PORT}`);
+    const w = typeof globalThis !== 'undefined' && 'location' in globalThis
+      ? (globalThis as unknown as { location: { hostname: string } }).location
+      : null;
+    if (w && isLocalHost(w.hostname)) {
+      setUrl(`http://${w.hostname}:${LOCAL_LANDING_PORT}`);
     }
   }, []);
 
