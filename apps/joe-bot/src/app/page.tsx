@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { Button, Loader } from '@hello-ai/shared-ui';
+import { Button, HomeLink, Loader } from '@hello-ai/shared-ui';
 import { tokens } from '@hello-ai/shared-design';
 
 type ChatMsg = {
@@ -186,6 +186,7 @@ export default function Page() {
           </div>
 
           <div className="flex items-center gap-2">
+            <HomeLink />
             <Button
               onClick={clearChat}
               variant="secondary"
