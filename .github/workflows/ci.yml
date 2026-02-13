@@ -16,11 +16,16 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
       - uses: actions/checkout@v4
         with:
           filter: tree:0
           fetch-depth: 0
+
+      - name: Set git safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
@@ -35,8 +40,17 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.base_ref || 'main' }}
+
       - uses: nrwl/nx-set-shas@v4
 
-      - run: pnpm nx affected -t lint test build
+      - name: Set NX_BASE fallback
+        run: |
+          if [ -z "${NX_BASE}" ]; then
+            echo "NX_BASE=origin/${{ github.base_ref || 'main' }}" >> $GITHUB_ENV
+          fi
+
+      - run: pnpm nx affected -t lint test build e2e
       - run: pnpm nx fix-ci
         if: always()
