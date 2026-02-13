@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* Ensure shared-ui component classes are included */
+@source "../../../../libs/shared/ui/src/**/*.{ts,tsx}";

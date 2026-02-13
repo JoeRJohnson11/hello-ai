@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { Button, HomeLink, Loader } from '@hello-ai/shared-ui';
+import { AppHeader, Button, Loader } from '@hello-ai/shared-ui';
 import { tokens } from '@hello-ai/shared-design';
 
 type ChatMsg = {
@@ -143,10 +143,13 @@ export default function Page() {
 
   return isLoading ? (
     <main
-      className="flex min-h-[100dvh] items-center justify-center bg-zinc-950 text-zinc-100"
+      className="flex min-h-[100dvh] flex-col bg-zinc-950 text-zinc-100"
       style={{ borderRadius: tokens.radius.md }}
     >
-      <div className="flex flex-col items-center gap-4">
+      <div className="px-4 py-4">
+        <AppHeader appName="joe-bot" />
+      </div>
+      <div className="flex flex-1 flex-col items-center justify-center gap-4">
         <Image
           src="/joe-head.png"
           alt="Loading Joe-bot"
@@ -164,31 +167,9 @@ export default function Page() {
       style={{ borderRadius: tokens.radius.md }}
     >
       <div className="mx-auto flex w-full min-h-[100dvh] max-w-3xl flex-col px-4 py-8">
-        <header className="mb-4 flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <HomeLink />
-            <div>
-              <div className="text-xs uppercase tracking-wider text-zinc-500">
-                HELLO-AI / joe-bot
-              </div>
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/joe-head.png"
-                  alt="Joe headshot"
-                  width={28}
-                  height={28}
-                  priority
-                  className="rounded-full border border-zinc-800"
-                />
-                <h1 className="text-2xl font-semibold tracking-tight">Joe-bot</h1>
-              </div>
-              <p className="mt-1 text-sm text-zinc-400">
-                It&apos;s like Joe, but its <em>bot</em>
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
+        <AppHeader
+          appName="joe-bot"
+          actions={
             <Button
               onClick={clearChat}
               variant="secondary"
@@ -197,8 +178,25 @@ export default function Page() {
             >
               Clear
             </Button>
+          }
+        >
+          <div>
+            <div className="flex items-center gap-2">
+              <Image
+                src="/joe-head.png"
+                alt="Joe headshot"
+                width={28}
+                height={28}
+                priority
+                className="rounded-full border border-zinc-800"
+              />
+              <h1 className="text-2xl font-semibold tracking-tight">Joe-bot</h1>
+            </div>
+            <p className="mt-1 text-sm text-zinc-400">
+              It&apos;s like Joe, but its <em>bot</em>
+            </p>
           </div>
-        </header>
+        </AppHeader>
 
         <section className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950/50 shadow-sm">
           <div className="flex-1 overflow-y-auto p-4">
