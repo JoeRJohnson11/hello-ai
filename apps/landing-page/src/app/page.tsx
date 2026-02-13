@@ -1,5 +1,4 @@
 import { tokens } from '@hello-ai/shared';
-import Link from 'next/link';
 
 export default function LandingPage() {
   return (
@@ -11,8 +10,8 @@ export default function LandingPage() {
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Joe-bot Card */}
-          <Link
-            href="https://hello-ai.vercel.app"
+          <a
+            href={process.env.NEXT_PUBLIC_HELLO_AI_URL || 'https://hello-ai.vercel.app'}
             className="group"
           >
             <div
@@ -28,11 +27,11 @@ export default function LandingPage() {
                 AI chatbot assistant
               </p>
             </div>
-          </Link>
+          </a>
 
           {/* Todo App Card */}
-          <Link
-            href="https://todo-app-joe.vercel.app"
+          <a
+            href={process.env.NEXT_PUBLIC_TODO_APP_URL || 'https://todo-app-joe.vercel.app'}
             className="group"
           >
             <div
@@ -48,7 +47,7 @@ export default function LandingPage() {
                 Task management
               </p>
             </div>
-          </Link>
+          </a>
         </div>
       </div>
     </div>
