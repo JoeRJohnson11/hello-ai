@@ -21,13 +21,15 @@ export default function Index() {
       <div className="mx-auto w-full max-w-lg px-4 py-8">
         <header className="mb-6">
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-xs uppercase tracking-wider text-zinc-500">
-                HELLO-AI / todo-app
+            <div className="flex items-center gap-3">
+              <HomeLink />
+              <div>
+                <div className="text-xs uppercase tracking-wider text-zinc-500">
+                  HELLO-AI / todo-app
+                </div>
+                <h1 className="text-2xl font-semibold tracking-tight">Todos</h1>
               </div>
-              <h1 className="text-2xl font-semibold tracking-tight">Todos</h1>
             </div>
-            <HomeLink />
           </div>
         </header>
 
@@ -85,8 +87,8 @@ export default function Index() {
                     onClick={() => toggleTodo(todo.id)}
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
                       todo.completed
-                        ? 'border-zinc-600 bg-zinc-700 text-zinc-300'
-                        : 'border-zinc-700 bg-zinc-900 text-transparent hover:border-zinc-500'
+                        ? 'border-zinc-600 bg-zinc-700 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-600'
+                        : 'border-zinc-700 bg-zinc-900 text-transparent hover:border-zinc-500 hover:bg-zinc-800'
                     }`}
                     style={{ borderRadius: tokens.radius.sm }}
                     aria-label={todo.completed ? 'Mark incomplete' : 'Mark complete'}

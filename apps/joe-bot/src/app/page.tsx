@@ -165,28 +165,30 @@ export default function Page() {
     >
       <div className="mx-auto flex w-full min-h-[100dvh] max-w-3xl flex-col px-4 py-8">
         <header className="mb-4 flex items-start justify-between gap-3">
-          <div>
-            <div className="text-xs uppercase tracking-wider text-zinc-500">
-              HELLO-AI / joe-bot
+          <div className="flex items-center gap-3">
+            <HomeLink />
+            <div>
+              <div className="text-xs uppercase tracking-wider text-zinc-500">
+                HELLO-AI / joe-bot
+              </div>
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/joe-head.png"
+                  alt="Joe headshot"
+                  width={28}
+                  height={28}
+                  priority
+                  className="rounded-full border border-zinc-800"
+                />
+                <h1 className="text-2xl font-semibold tracking-tight">Joe-bot</h1>
+              </div>
+              <p className="mt-1 text-sm text-zinc-400">
+                It&apos;s like Joe, but its <em>bot</em>
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Image
-                src="/joe-head.png"
-                alt="Joe headshot"
-                width={28}
-                height={28}
-                priority
-                className="rounded-full border border-zinc-800"
-              />
-              <h1 className="text-2xl font-semibold tracking-tight">Joe-bot</h1>
-            </div>
-            <p className="mt-1 text-sm text-zinc-400">
-              It&apos;s like Joe, but its <em>bot</em>
-            </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <HomeLink />
             <Button
               onClick={clearChat}
               variant="secondary"

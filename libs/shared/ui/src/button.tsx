@@ -24,9 +24,9 @@ export function Button({
   } as const;
 
   const variants = {
-    primary: "bg-zinc-100 text-zinc-900",
+    primary: "bg-zinc-100 text-zinc-900 hover:bg-zinc-200 transition-colors",
     secondary:
-      "border border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-700",
+      "border border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900 transition-colors",
   } as const;
 
   return (
