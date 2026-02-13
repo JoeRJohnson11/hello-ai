@@ -19,7 +19,7 @@ export default function LandingPage() {
               className="bg-zinc-800 rounded-2xl p-8 hover:bg-zinc-750 transition-colors cursor-pointer h-full flex flex-col items-center justify-center gap-6"
               style={{
                 borderRadius: tokens.radius.xl,
-                boxShadow: tokens.shadow.lg,
+                boxShadow: tokens.shadow.md,
               }}
             >
               <div className="text-6xl">🤖</div>
@@ -39,7 +39,7 @@ export default function LandingPage() {
               className="bg-zinc-800 rounded-2xl p-8 hover:bg-zinc-750 transition-colors cursor-pointer h-full flex flex-col items-center justify-center gap-6"
               style={{
                 borderRadius: tokens.radius.xl,
-                boxShadow: tokens.shadow.lg,
+                boxShadow: tokens.shadow.md,
               }}
             >
               <div className="text-6xl">✓</div>
