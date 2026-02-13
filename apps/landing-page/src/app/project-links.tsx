@@ -11,7 +11,7 @@ import { tokens } from '@hello-ai/shared-design';
 const LOCAL_JOE_BOT_PORT = 3010;
 const LOCAL_TODO_PORT = 3012;
 // Update fallbacks if Vercel project names differ from these defaults
-const FALLBACK_JOE_BOT_URL = 'https://hello-ai-hello-ai.vercel.app';
+const FALLBACK_JOE_BOT_URL = 'https://joe-bot.vercel.app';
 const FALLBACK_TODO_APP_URL = 'https://hello-ai-todo-app.vercel.app';
 
 function isLocalHost(hostname: string) {
