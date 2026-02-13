@@ -36,7 +36,16 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.base_ref || 'main' }}
+
       - uses: nrwl/nx-set-shas@v4
+
+      - name: Set NX_BASE fallback
+        run: |
+          if [ -z "${NX_BASE}" ]; then
+            echo "NX_BASE=origin/${{ github.base_ref || 'main' }}" >> $GITHUB_ENV
+          fi
 
       - run: pnpm nx affected -t lint test build e2e
       - run: pnpm nx fix-ci
