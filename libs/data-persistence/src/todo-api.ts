@@ -6,7 +6,7 @@ import { db } from './db';
 import { todos } from './schema';
 import { eq, asc } from 'drizzle-orm';
 import { ensureMigrations } from './db';
-import { deleteOldCompletedTodos as drizzleDeleteOldCompletedTodos } from './retention';
+import { drizzleDeleteOldCompletedTodos } from './retention';
 import {
   useTursoHttp,
   tursoGetTodos,

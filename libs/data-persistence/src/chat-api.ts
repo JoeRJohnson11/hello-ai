@@ -15,7 +15,7 @@ import {
   tursoEnsureMigrations,
 } from './turso-http';
 import { ensureMigrations } from './db';
-import { deleteOldChatMessages as drizzleDeleteOldChatMessages } from './retention';
+import { drizzleDeleteOldChatMessages } from './retention';
 
 export type ChatMessage = { id: string; role: string; content: string; createdAt: number };
 

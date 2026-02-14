@@ -4,7 +4,7 @@ import { chatMessages, todos } from './schema';
 
 const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
 
-export async function deleteOldChatMessages(): Promise<number> {
+export async function drizzleDeleteOldChatMessages(): Promise<number> {
   const cutoff = Date.now() - NINETY_DAYS_MS;
   const result = await db
     .delete(chatMessages)
@@ -12,7 +12,7 @@ export async function deleteOldChatMessages(): Promise<number> {
   return result.rowsAffected;
 }
 
-export async function deleteOldCompletedTodos(): Promise<number> {
+export async function drizzleDeleteOldCompletedTodos(): Promise<number> {
   const cutoff = Date.now() - NINETY_DAYS_MS;
   const result = await db
     .delete(todos)
