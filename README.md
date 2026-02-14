@@ -15,6 +15,7 @@ Deploy each app as a separate Vercel project. Set **Root Directory** to the app 
 |---------|----------|---------|
 | **landing-page** | `NEXT_PUBLIC_JOE_BOT_URL` | Joe-bot URL (fallback: joe-bot.vercel.app) |
 | **landing-page** | `NEXT_PUBLIC_TODO_APP_URL` | Todo app URL (fallback: joes-todo-app.vercel.app) |
+| **joe-bot** | `OPENAI_API_KEY` | Required server key for `/api/chat` |
 | **joe-bot** | `NEXT_PUBLIC_LANDING_PAGE_URL` | Home link target (fixes 404) |
 | **todo-app** | `NEXT_PUBLIC_LANDING_PAGE_URL` | Home link target (fixes 404) |
 
