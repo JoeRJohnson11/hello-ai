@@ -40,10 +40,14 @@ Thumbs.db
 
 .nx/cache
 .nx/workspace-data
+
+# data-persistence build artifacts (no source in repo)
+libs/data-persistence/
 .cursor/
 .github/instructions/nx.instructions.md
 
 # Next.js
+**/next-env.d.ts
 .next
 out
 
