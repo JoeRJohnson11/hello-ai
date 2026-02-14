@@ -1,0 +1,8 @@
+{
+  "name": "@hello-ai/landing-page-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": ["@hello-ai/landing-page"]
+  }
+}
