@@ -71,12 +71,11 @@ export async function tursoGetChatMessages(sessionId: string): Promise<ChatRow[]
   return rows as ChatRow[];
 }
 
-export async function tursoInsertChatMessage(id: string, sessionId: string, role: string, content: string, createdAt: number): Promise<boolean> {
-  const { ok } = await execute(
+export async function tursoInsertChatMessage(id: string, sessionId: string, role: string, content: string, createdAt: number): Promise<{ ok: boolean; error?: string }> {
+  return execute(
     'INSERT INTO chat_messages (id, session_id, role, content, created_at) VALUES (:id, :sid, :role, :content, :ts)',
     { id, sid: sessionId, role, content, ts: createdAt }
   );
-  return ok;
 }
 
 export async function tursoDeleteChatMessages(sessionId: string): Promise<boolean> {
@@ -96,7 +95,8 @@ export async function tursoEnsureMigrations(): Promise<void> {
     'CREATE TABLE IF NOT EXISTS todos (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, text text NOT NULL, completed integer DEFAULT 0 NOT NULL, completed_at integer, created_at integer NOT NULL)',
   ];
   for (const sql of migrations) {
-    await execute(sql);
+    const r = await execute(sql);
+    if (!r.ok) console.error('[data-persistence] Migration failed:', r.error);
   }
 }
 

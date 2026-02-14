@@ -35,8 +35,12 @@ export async function getChatMessages(sessionId: string): Promise<ChatMessage[]>
 
 export async function insertChatMessage(id: string, sessionId: string, role: string, content: string, createdAt: number): Promise<void> {
   if (useTursoHttp()) {
-    const ok = await tursoInsertChatMessage(id, sessionId, role, content, createdAt);
-    if (!ok) throw new Error('Failed to insert chat message');
+    const result = await tursoInsertChatMessage(id, sessionId, role, content, createdAt);
+    if (!result.ok) {
+      const msg = result.error ?? 'Unknown Turso error';
+      console.error('[data-persistence] insert failed', { error: msg });
+      throw new Error(`Failed to insert chat message: ${msg}`);
+    }
     return;
   }
   await db.insert(chatMessages).values({ id, sessionId, role, content, createdAt });
