@@ -1,5 +1,5 @@
 distribute-on:
-  small-changeset: 2 linux-medium-js   # 1–25% of projects affected
+  small-changeset: 3 linux-medium-js   # 1–25% of projects affected (min 3 required)
   medium-changeset: 4 linux-medium-js  # 26–50% of projects affected
   large-changeset: 6 linux-medium-js   # 51–75% of projects affected
   extra-large-changeset: 8 linux-medium-js  # 76–100% of projects affected
