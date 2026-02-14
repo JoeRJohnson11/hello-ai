@@ -56,7 +56,7 @@ jobs:
       - name: Run lint, test, build (distributed via Nx Cloud compute)
         run: |
           npx nx-cloud start-ci-run \
-            --distribute-on="4 linux-medium-js" \
+            --distribute-on=".nx/workflows/distribution-config.yaml" \
             --stop-agents-on-failure \
             -- pnpm nx affected -t lint test build
 
