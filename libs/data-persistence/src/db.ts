@@ -92,6 +92,11 @@ export async function ensureMigrations(): Promise<void> {
   if (!migrationPromise) {
     migrationPromise = (async () => {
       // Use raw HTTP for Turso (avoids libSQL client 400 in serverless)
+      const hasUrl = Boolean(process.env.TURSO_DATABASE_URL);
+      const hasToken = Boolean(process.env.TURSO_AUTH_TOKEN);
+      if (process.env.VERCEL === '1') {
+        console.info('[data-persistence] ensureMigrations', { isRemote, hasUrl, hasToken, authTokenLen: authToken?.length ?? 0 });
+      }
       if (isRemote && authToken) {
         for (const stmt of MIGRATION_SQL) {
           const result = await rawTursoExecute(stmt);
