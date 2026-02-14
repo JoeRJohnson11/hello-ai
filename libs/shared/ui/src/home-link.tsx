@@ -9,10 +9,25 @@ function isLocalHost(hostname: string) {
   return hostname === 'localhost' || hostname === '127.0.0.1';
 }
 
+function normalizeLandingUrl(candidate: string | undefined) {
+  const raw = candidate?.trim();
+  if (!raw) return FALLBACK_LANDING_URL;
+
+  try {
+    return new URL(raw).toString();
+  } catch {
+    // Support host-only values from env vars like "example.com".
+    try {
+      return new URL(`https://${raw}`).toString();
+    } catch {
+      return FALLBACK_LANDING_URL;
+    }
+  }
+}
+
 export function HomeLink() {
   const [url, setUrl] = useState(
-    () =>
-      process.env.NEXT_PUBLIC_LANDING_PAGE_URL || FALLBACK_LANDING_URL
+    () => normalizeLandingUrl(process.env.NEXT_PUBLIC_LANDING_PAGE_URL)
   );
 
   useEffect(() => {
