@@ -20,3 +20,9 @@ export const todos = sqliteTable('todos', {
   completedAt: integer('completed_at', { mode: 'number' }),
   createdAt: integer('created_at', { mode: 'number' }).notNull(),
 });
+
+export const personFacts = sqliteTable('person_facts', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  category: text('category'),
+});

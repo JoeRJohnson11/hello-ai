@@ -86,6 +86,7 @@ async function rawTursoExecute(sqlStatement: string): Promise<{ ok: boolean; sta
 const MIGRATION_SQL = [
   `CREATE TABLE IF NOT EXISTS chat_messages (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, role text NOT NULL, content text NOT NULL, created_at integer NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS todos (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, text text NOT NULL, completed integer DEFAULT 0 NOT NULL, completed_at integer, created_at integer NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS person_facts (key text PRIMARY KEY NOT NULL, value text NOT NULL, category text)`,
 ];
 
 export async function ensureMigrations(): Promise<void> {
@@ -112,6 +113,7 @@ export async function ensureMigrations(): Promise<void> {
       try {
         await db.run(sql`CREATE TABLE IF NOT EXISTS chat_messages (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, role text NOT NULL, content text NOT NULL, created_at integer NOT NULL)`);
         await db.run(sql`CREATE TABLE IF NOT EXISTS todos (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, text text NOT NULL, completed integer DEFAULT 0 NOT NULL, completed_at integer, created_at integer NOT NULL)`);
+        await db.run(sql`CREATE TABLE IF NOT EXISTS person_facts (key text PRIMARY KEY NOT NULL, value text NOT NULL, category text)`);
       } catch (error) {
         console.warn('Migration warning (may be already applied):', error);
       }

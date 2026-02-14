@@ -5,6 +5,8 @@ import {
   ensureChatMigrations,
   getChatMessages,
   insertChatMessage,
+  getPersonFacts,
+  seedPersonFactsIfEmpty,
 } from '@hello-ai/data-persistence';
 
 export const runtime = 'nodejs';
@@ -92,6 +94,7 @@ export async function POST(req: Request) {
     }
 
     await ensureChatMigrations();
+    await seedPersonFactsIfEmpty().catch((e) => console.warn('[joe-bot] Person facts seed skipped:', e.message));
     const sessionId = await getOrCreateSessionId();
 
     // CI-friendly: don't call external services in CI
@@ -119,6 +122,7 @@ export async function POST(req: Request) {
     }
 
     const history = await getChatMessages(sessionId);
+    const personFacts = await getPersonFacts();
 
     const userMsgId = crypto.randomUUID();
     const assistantMsgId = crypto.randomUUID();
@@ -128,6 +132,13 @@ export async function POST(req: Request) {
 
     const client = new OpenAI({ apiKey });
     const opening = nextOpeningPhrase();
+
+    const factsBlock =
+      personFacts.length > 0
+        ? '\n\nFacts about Joe (use these to sound more like him, reference when relevant):\n' +
+          personFacts.map((f) => `- ${f.key}: ${f.value}`).join('\n') +
+          '\n'
+        : '';
 
     const chatHistory = history.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
 
@@ -147,7 +158,8 @@ export async function POST(req: Request) {
             '- Keep it clean, professional, and confident.\n\n' +
             'Style notes:\n' +
             '- Keep answers tight and practical.\n' +
-            '- Avoid buzzwords unless they add clarity.\n',
+            '- Avoid buzzwords unless they add clarity.\n' +
+            factsBlock,
         },
         ...chatHistory,
         { role: 'user', content: msg },

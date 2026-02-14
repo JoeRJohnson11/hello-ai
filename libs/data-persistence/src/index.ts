@@ -1,5 +1,5 @@
 export { db, ensureMigrations } from './db';
-export { chatMessages, todos } from './schema';
+export { chatMessages, todos, personFacts } from './schema';
 export { eq, asc } from 'drizzle-orm';
 export type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 export { getOrCreateSessionId, sessionCookieHeader } from './session';
@@ -10,6 +10,11 @@ export {
   ensureChatMigrations,
   deleteOldChatMessages,
 } from './chat-api';
+export {
+  getPersonFacts,
+  upsertPersonFact,
+  seedPersonFactsIfEmpty,
+} from './person-facts-api';
 export {
   getTodos,
   createTodo,

@@ -93,6 +93,7 @@ export async function tursoEnsureMigrations(): Promise<void> {
   const migrations = [
     'CREATE TABLE IF NOT EXISTS chat_messages (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, role text NOT NULL, content text NOT NULL, created_at integer NOT NULL)',
     'CREATE TABLE IF NOT EXISTS todos (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, text text NOT NULL, completed integer DEFAULT 0 NOT NULL, completed_at integer, created_at integer NOT NULL)',
+    'CREATE TABLE IF NOT EXISTS person_facts (key text PRIMARY KEY NOT NULL, value text NOT NULL, category text)',
   ];
   for (const sql of migrations) {
     const r = await execute(sql);
@@ -166,6 +167,20 @@ export async function tursoDeleteOldCompletedTodos(): Promise<boolean> {
     cutoff,
   });
   return ok;
+}
+
+export type PersonFactRow = { key: string; value: string; category: string | null };
+
+export async function tursoGetPersonFacts(): Promise<PersonFactRow[]> {
+  const { rows } = await execute('SELECT key, value, category FROM person_facts ORDER BY category, key');
+  return rows as PersonFactRow[];
+}
+
+export async function tursoUpsertPersonFact(key: string, value: string, category?: string | null): Promise<{ ok: boolean; error?: string }> {
+  return execute(
+    'INSERT INTO person_facts (key, value, category) VALUES (:key, :value, :category) ON CONFLICT(key) DO UPDATE SET value = :value, category = :category',
+    { key, value, category: category ?? null }
+  );
 }
 
 export function useTursoHttp(): boolean {
