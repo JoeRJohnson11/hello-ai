@@ -1,12 +1,10 @@
 import {
-  db,
-  todos,
-  asc,
-  eq,
   getOrCreateSessionId,
   sessionCookieHeader,
+  ensureTodoMigrations,
+  getTodos,
+  createTodo,
   deleteOldCompletedTodos,
-  ensureMigrations,
 } from '@hello-ai/data-persistence';
 
 export const runtime = 'nodejs';
@@ -18,21 +16,12 @@ const cookieHeader = (sessionId: string) => ({
 });
 
 export async function GET() {
-  await ensureMigrations();
+  await ensureTodoMigrations();
   const sessionId = await getOrCreateSessionId();
   await deleteOldCompletedTodos();
 
-  const rows = await db
-    .select()
-    .from(todos)
-    .where(eq(todos.sessionId, sessionId))
-    .orderBy(asc(todos.createdAt));
-
-  const todosList = rows.map((r) => ({
-    id: r.id,
-    text: r.text,
-    completed: r.completed,
-  }));
+  const rows = await getTodos(sessionId);
+  const todosList = rows.map((r) => ({ id: r.id, text: r.text, completed: r.completed }));
 
   return new Response(JSON.stringify({ todos: todosList }), {
     headers: cookieHeader(sessionId),
@@ -40,7 +29,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  await ensureMigrations();
+  await ensureTodoMigrations();
   const sessionId = await getOrCreateSessionId();
   const body = (await req.json()) as { text?: string };
   const text = (body.text ?? '').trim();
@@ -53,19 +42,9 @@ export async function POST(req: Request) {
 
   const id = crypto.randomUUID();
   const now = Date.now();
+  const todo = await createTodo(id, sessionId, text, now);
 
-  await db.insert(todos).values({
-    id,
-    sessionId,
-    text,
-    completed: false,
-    createdAt: now,
+  return new Response(JSON.stringify({ todo: { id: todo.id, text: todo.text, completed: todo.completed, createdAt: todo.createdAt } }), {
+    headers: cookieHeader(sessionId),
   });
-
-  return new Response(
-    JSON.stringify({
-      todo: { id, text, completed: false, createdAt: now },
-    }),
-    { headers: cookieHeader(sessionId) }
-  );
 }

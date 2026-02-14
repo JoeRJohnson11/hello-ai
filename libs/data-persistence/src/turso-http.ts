@@ -100,6 +100,74 @@ export async function tursoEnsureMigrations(): Promise<void> {
   }
 }
 
+export type TodoRow = { id: string; session_id: string; text: string; completed: number; completed_at: number | null; created_at: number };
+
+export async function tursoGetTodos(sessionId: string): Promise<TodoRow[]> {
+  const { rows } = await execute(
+    'SELECT id, session_id, text, completed, completed_at, created_at FROM todos WHERE session_id = :sid ORDER BY created_at ASC',
+    { sid: sessionId }
+  );
+  return rows as TodoRow[];
+}
+
+export async function tursoGetTodoById(id: string): Promise<TodoRow | null> {
+  const { rows } = await execute('SELECT id, session_id, text, completed, completed_at, created_at FROM todos WHERE id = :id LIMIT 1', {
+    id,
+  });
+  return (rows[0] as TodoRow) ?? null;
+}
+
+export async function tursoInsertTodo(
+  id: string,
+  sessionId: string,
+  text: string,
+  completed: number,
+  createdAt: number
+): Promise<{ ok: boolean; error?: string }> {
+  return execute('INSERT INTO todos (id, session_id, text, completed, created_at) VALUES (:id, :sid, :text, :completed, :ts)', {
+    id,
+    sid: sessionId,
+    text,
+    completed,
+    ts: createdAt,
+  });
+}
+
+export async function tursoUpdateTodo(
+  id: string,
+  updates: { text?: string; completed?: number; completedAt?: number | null }
+): Promise<{ ok: boolean; error?: string }> {
+  const keys = Object.keys(updates);
+  if (keys.length === 0) return { ok: true };
+  const sets: string[] = [];
+  const args: Record<string, string | number | null> = { id };
+  if (updates.text !== undefined) {
+    sets.push('text = :text');
+    args.text = updates.text;
+  }
+  if (updates.completed !== undefined) {
+    sets.push('completed = :completed');
+    args.completed = updates.completed;
+  }
+  if (updates.completedAt !== undefined) {
+    sets.push('completed_at = :completedAt');
+    args.completedAt = updates.completedAt;
+  }
+  return execute(`UPDATE todos SET ${sets.join(', ')} WHERE id = :id`, args);
+}
+
+export async function tursoDeleteTodo(id: string): Promise<{ ok: boolean; error?: string }> {
+  return execute('DELETE FROM todos WHERE id = :id', { id });
+}
+
+export async function tursoDeleteOldCompletedTodos(): Promise<boolean> {
+  const cutoff = Date.now() - NINETY_DAYS_MS;
+  const { ok } = await execute('DELETE FROM todos WHERE completed = 1 AND completed_at IS NOT NULL AND completed_at < :cutoff', {
+    cutoff,
+  });
+  return ok;
+}
+
 export function useTursoHttp(): boolean {
   const { baseUrl, authToken, isRemote } = getConfig();
   return process.env.VERCEL === '1' && isRemote && !!authToken && !!baseUrl;

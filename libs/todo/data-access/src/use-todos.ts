@@ -10,9 +10,19 @@ export interface Todo {
 
 export type TodoFilter = 'all' | 'active' | 'completed';
 
+async function parseJson<T>(res: Response): Promise<T> {
+  const text = await res.text();
+  if (!text.trim()) return {} as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error(`Invalid response: ${text.slice(0, 100)}`);
+  }
+}
+
 async function fetchTodos(): Promise<Todo[]> {
   const res = await fetch('/api/todos');
-  const data = (await res.json()) as { todos?: { id: string; text: string; completed: boolean }[] };
+  const data = await parseJson<{ todos?: { id: string; text: string; completed: boolean }[] }>(res);
   if (!res.ok) throw new Error('Failed to fetch todos');
   return (data.todos ?? []).map((t) => ({ id: t.id, text: t.text, completed: t.completed }));
 }
@@ -23,7 +33,7 @@ async function createTodo(text: string): Promise<Todo> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text }),
   });
-  const data = (await res.json()) as { todo?: Todo; error?: string };
+  const data = await parseJson<{ todo?: Todo; error?: string }>(res);
   if (!res.ok) throw new Error(data.error ?? 'Failed to create todo');
   if (!data.todo) throw new Error('No todo in response');
   return data.todo;
@@ -35,7 +45,7 @@ async function updateTodo(id: string, updates: { completed?: boolean }): Promise
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates),
   });
-  const data = (await res.json()) as { todo?: Todo; error?: string };
+  const data = await parseJson<{ todo?: Todo; error?: string }>(res);
   if (!res.ok) throw new Error(data.error ?? 'Failed to update todo');
   if (!data.todo) throw new Error('No todo in response');
   return data.todo;
@@ -44,7 +54,7 @@ async function updateTodo(id: string, updates: { completed?: boolean }): Promise
 async function removeTodo(id: string): Promise<void> {
   const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
   if (!res.ok) {
-    const data = (await res.json()) as { error?: string };
+    const data = await parseJson<{ error?: string }>(res);
     throw new Error(data.error ?? 'Failed to delete todo');
   }
 }
