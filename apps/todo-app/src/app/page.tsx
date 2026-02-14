@@ -50,7 +50,7 @@ export default function Index() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="What needs to be done?"
-            className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
+            className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-base sm:text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
           />
           <Button type="submit" variant="primary" size="md">
             Add
