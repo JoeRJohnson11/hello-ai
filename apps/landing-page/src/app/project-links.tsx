@@ -18,16 +18,33 @@ function isLocalHost(hostname: string) {
   return hostname === 'localhost' || hostname === '127.0.0.1';
 }
 
+function normalizeExternalUrl(candidate: string | undefined, fallback: string) {
+  const raw = candidate?.trim();
+  if (!raw) return fallback;
+  if (raw.startsWith('/')) return fallback;
+
+  try {
+    const parsed = new URL(raw);
+    if (!parsed.hostname) return fallback;
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return fallback;
+    return parsed.toString();
+  } catch {
+    try {
+      const parsed = new URL(`https://${raw}`);
+      if (!parsed.hostname) return fallback;
+      return parsed.toString();
+    } catch {
+      return fallback;
+    }
+  }
+}
+
 export function ProjectLinks() {
   const [joeBotUrl, setJoeBotUrl] = useState(
-    () =>
-      process.env.NEXT_PUBLIC_JOE_BOT_URL ||
-      FALLBACK_JOE_BOT_URL
+    () => normalizeExternalUrl(process.env.NEXT_PUBLIC_JOE_BOT_URL, FALLBACK_JOE_BOT_URL)
   );
   const [todoAppUrl, setTodoAppUrl] = useState(
-    () =>
-      process.env.NEXT_PUBLIC_TODO_APP_URL ||
-      FALLBACK_TODO_APP_URL
+    () => normalizeExternalUrl(process.env.NEXT_PUBLIC_TODO_APP_URL, FALLBACK_TODO_APP_URL)
   );
 
   useEffect(() => {
