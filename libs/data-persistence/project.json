@@ -1,0 +1,18 @@
+{
+  "targets": {
+    "build": {
+      "inputs": [
+        "production",
+        "^production",
+        { "externalDependencies": ["drizzle-orm", "@libsql/client", "tslib", "next"] }
+      ]
+    },
+    "typecheck": {
+      "inputs": [
+        "production",
+        "^production",
+        { "externalDependencies": ["drizzle-orm", "@libsql/client", "tslib", "next"] }
+      ]
+    }
+  }
+}

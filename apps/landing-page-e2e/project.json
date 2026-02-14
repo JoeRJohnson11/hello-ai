@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "e2e": {
+      "inputs": [
+        "default",
+        "^production",
+        { "externalDependencies": ["@playwright/test"] },
+        {
+          "runtime": "node -e \"console.log(process.env.BASE_URL_LANDING_PAGE || process.env.BASE_URL || 'local')\""
+        }
+      ]
+    }
+  }
+}

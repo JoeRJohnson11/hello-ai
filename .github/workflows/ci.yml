@@ -43,6 +43,9 @@ jobs:
         run: git fetch origin ${{ github.base_ref || 'main' }}
 
       - uses: nrwl/nx-set-shas@v4
+        with:
+          main-branch-name: 'main'
+          workflow-id: 'ci.yml'
 
       - name: Set NX_BASE fallback
         run: |
