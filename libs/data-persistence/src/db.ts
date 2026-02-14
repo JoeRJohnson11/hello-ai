@@ -29,7 +29,7 @@ if (process.env.VERCEL === '1' && url.startsWith('libsql://')) {
   url = url.replace(/^libsql:\/\//, 'https://');
 }
 
-// Use @libsql/client/web on Vercel - fetch-only, no native deps
+// Use @libsql/client/web on Vercel (fetch-only); else default client for file: support
 const isVercel = process.env.VERCEL === '1';
 const useWebClient = isVercel && isRemote;
 
@@ -91,15 +91,18 @@ const MIGRATION_SQL = [
 export async function ensureMigrations(): Promise<void> {
   if (!migrationPromise) {
     migrationPromise = (async () => {
-      if (process.env.VERCEL === '1' && isRemote && authToken) {
-        // On Vercel: use raw HTTP to avoid libSQL client 400; run migrations directly
+      // Use raw HTTP for Turso (avoids libSQL client 400 in serverless)
+      if (isRemote && authToken) {
         for (const stmt of MIGRATION_SQL) {
           const result = await rawTursoExecute(stmt);
           if (!result.ok) {
-            console.warn('[data-persistence] Migration failed (may be already applied):', result.body ?? result.status);
+            console.warn('[data-persistence] Migration failed:', result.body ?? result.status);
           }
         }
         return;
+      }
+      if (isRemote && !authToken) {
+        throw new Error('TURSO_AUTH_TOKEN is required when using TURSO_DATABASE_URL. Add it to your Vercel project env vars.');
       }
       try {
         await db.run(sql`CREATE TABLE IF NOT EXISTS chat_messages (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, role text NOT NULL, content text NOT NULL, created_at integer NOT NULL)`);
