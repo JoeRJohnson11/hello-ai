@@ -1,11 +1,13 @@
 import {
-  getOrCreateSessionId,
-  sessionCookieHeader,
   ensureTodoMigrations,
   getTodos,
   createTodo,
   deleteOldCompletedTodos,
-} from '@hello-ai/data-persistence';
+} from '@hello-ai/data-persistence-todo';
+import {
+  getOrCreateSessionId,
+  sessionCookieHeader,
+} from '@hello-ai/data-persistence-session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

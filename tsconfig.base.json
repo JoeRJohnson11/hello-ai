@@ -25,6 +25,14 @@
       "@hello-ai/shared-design/*": ["libs/shared/design/src/*"],
       "@hello-ai/todo-data-access": ["libs/todo/data-access/src/index.ts"],
       "@hello-ai/todo-data-access/*": ["libs/todo/data-access/src/*"],
+      "@hello-ai/data-persistence-core": ["libs/data-persistence/core/src/index.ts"],
+      "@hello-ai/data-persistence-core/*": ["libs/data-persistence/core/src/*"],
+      "@hello-ai/data-persistence-chat": ["libs/data-persistence/chat/src/index.ts"],
+      "@hello-ai/data-persistence-chat/*": ["libs/data-persistence/chat/src/*"],
+      "@hello-ai/data-persistence-todo": ["libs/data-persistence/todo/src/index.ts"],
+      "@hello-ai/data-persistence-todo/*": ["libs/data-persistence/todo/src/*"],
+      "@hello-ai/data-persistence-session": ["libs/data-persistence/session/src/index.ts"],
+      "@hello-ai/data-persistence-session/*": ["libs/data-persistence/session/src/*"],
       "@hello-ai/data-persistence": ["libs/data-persistence/src/index.ts"],
       "@hello-ai/data-persistence/*": ["libs/data-persistence/src/*"]
     }

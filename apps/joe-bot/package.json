@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@hello-ai/data-persistence": "workspace:*",
+    "@hello-ai/data-persistence-chat": "workspace:*",
+    "@hello-ai/data-persistence-session": "workspace:*",
     "@hello-ai/shared-design": "workspace:*",
     "@hello-ai/shared-ui": "workspace:*",
     "@libsql/client": "^0.14.0",

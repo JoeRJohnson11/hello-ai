@@ -3,5 +3,6 @@ packages:
   - 'libs/shared/*'
   - 'libs/todo/*'
   - 'libs/data-persistence'
+  - 'libs/data-persistence/*'
 autoInstallPeers: true
 strictPeerDependencies: false

@@ -1,5 +1,5 @@
 {
-  "name": "@hello-ai/data-persistence",
+  "name": "@hello-ai/data-persistence-chat",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -16,13 +16,7 @@
     }
   },
   "dependencies": {
-    "@hello-ai/data-persistence-chat": "workspace:*",
     "@hello-ai/data-persistence-core": "workspace:*",
-    "@hello-ai/data-persistence-session": "workspace:*",
-    "@hello-ai/data-persistence-todo": "workspace:*",
     "tslib": "^2.3.0"
-  },
-  "devDependencies": {
-    "drizzle-kit": "^0.28.0"
   }
 }

@@ -1,11 +1,13 @@
 import OpenAI from 'openai';
 import {
-  getOrCreateSessionId,
-  sessionCookieHeader,
   ensureChatMigrations,
   getChatMessages,
   insertChatMessage,
-} from '@hello-ai/data-persistence';
+} from '@hello-ai/data-persistence-chat';
+import {
+  getOrCreateSessionId,
+  sessionCookieHeader,
+} from '@hello-ai/data-persistence-session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

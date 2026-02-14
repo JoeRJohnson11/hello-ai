@@ -45,6 +45,7 @@ Thumbs.db
 # data-persistence build artifacts
 libs/data-persistence/dist
 libs/data-persistence/data
+libs/data-persistence/core/data
 .cursor/
 .github/instructions/nx.instructions.md
 

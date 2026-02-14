@@ -1,15 +1,20 @@
-export { db, ensureMigrations } from './db';
-export { chatMessages, todos } from './schema';
-export { eq, asc } from 'drizzle-orm';
-export type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-export { getOrCreateSessionId, sessionCookieHeader } from './session';
+export {
+  db,
+  ensureMigrations,
+  chatMessages,
+  todos,
+  eq,
+  asc,
+} from '@hello-ai/data-persistence-core';
+export type { InferSelectModel, InferInsertModel } from '@hello-ai/data-persistence-core';
+export { getOrCreateSessionId, sessionCookieHeader } from '@hello-ai/data-persistence-session';
 export {
   getChatMessages,
   insertChatMessage,
   deleteChatMessagesForSession,
   ensureChatMigrations,
   deleteOldChatMessages,
-} from './chat-api';
+} from '@hello-ai/data-persistence-chat';
 export {
   getTodos,
   createTodo,
@@ -18,4 +23,4 @@ export {
   deleteTodo,
   ensureTodoMigrations,
   deleteOldCompletedTodos,
-} from './todo-api';
+} from '@hello-ai/data-persistence-todo';
