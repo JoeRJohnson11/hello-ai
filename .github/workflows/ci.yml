@@ -53,7 +53,13 @@ jobs:
             echo "NX_BASE=origin/${{ github.base_ref || 'main' }}" >> $GITHUB_ENV
           fi
 
-      - run: pnpm nx affected -t lint test build
+      - name: Run lint, test, build (distributed via Nx Agents)
+        run: |
+          npx nx-cloud start-ci-run \
+            --distribute-on="manual" \
+            --stop-agents-after="lint,test,build" \
+            --stop-agents-on-failure \
+            -- pnpm nx affected -t lint test build
 
       - name: Wait for Vercel Preview URLs
         if: github.event_name == 'pull_request' && vars.VERCEL_PREVIEW_ENABLED == 'true'
@@ -66,7 +72,41 @@ jobs:
           GIT_REF: ${{ github.head_ref || github.ref_name }}
         run: . ./.github/scripts/wait-for-vercel-preview-urls.sh
 
-      - run: pnpm nx affected -t e2e
+      # E2E runs on coordinator only (needs BASE_URL_* from Vercel wait for preview deployments)
+      - name: Run E2E tests
+        run: pnpm nx affected -t e2e
 
       - run: pnpm nx fix-ci
         if: always()
+
+  agent:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: tree:0
+          fetch-depth: 0
+
+      - name: Set git safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Start Nx Agent
+        run: npx nx-cloud start-agent
