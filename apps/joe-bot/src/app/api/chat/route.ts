@@ -1,12 +1,10 @@
 import OpenAI from 'openai';
 import {
-  db,
-  chatMessages,
   getOrCreateSessionId,
   sessionCookieHeader,
-  asc,
-  eq,
-  ensureMigrations,
+  ensureChatMigrations,
+  getChatMessages,
+  insertChatMessage,
 } from '@hello-ai/data-persistence';
 
 export const runtime = 'nodejs';
@@ -93,26 +91,14 @@ export async function POST(req: Request) {
       });
     }
 
-    await ensureMigrations();
+    await ensureChatMigrations();
     const sessionId = await getOrCreateSessionId();
 
     // CI-friendly: don't call external services in CI
     if (process.env.CI === 'true') {
       const userId = `ci-${Date.now()}`;
-      await db.insert(chatMessages).values({
-        id: userId,
-        sessionId,
-        role: 'user',
-        content: msg,
-        createdAt: Date.now(),
-      });
-      await db.insert(chatMessages).values({
-        id: `ci-${Date.now()}-r`,
-        sessionId,
-        role: 'assistant',
-        content: `CI echo: ${msg}`,
-        createdAt: Date.now(),
-      });
+      await insertChatMessage(userId, sessionId, 'user', msg, Date.now());
+      await insertChatMessage(`ci-${Date.now()}-r`, sessionId, 'assistant', `CI echo: ${msg}`, Date.now());
       return new Response(JSON.stringify({ text: `CI echo: ${msg}` }), {
         headers: {
           'Content-Type': 'application/json',
@@ -132,31 +118,18 @@ export async function POST(req: Request) {
       );
     }
 
-    const history = await db
-      .select()
-      .from(chatMessages)
-      .where(eq(chatMessages.sessionId, sessionId))
-      .orderBy(asc(chatMessages.createdAt));
+    const history = await getChatMessages(sessionId);
 
     const userMsgId = crypto.randomUUID();
     const assistantMsgId = crypto.randomUUID();
     const now = Date.now();
 
-    await db.insert(chatMessages).values({
-      id: userMsgId,
-      sessionId,
-      role: 'user',
-      content: msg,
-      createdAt: now,
-    });
+    await insertChatMessage(userMsgId, sessionId, 'user', msg, now);
 
     const client = new OpenAI({ apiKey });
     const opening = nextOpeningPhrase();
 
-    const chatHistory = history.map((m) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    }));
+    const chatHistory = history.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
 
     const completion = await client.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -184,13 +157,7 @@ export async function POST(req: Request) {
     const text =
       completion.choices?.[0]?.message?.content?.trim() ?? '…(no response)';
 
-    await db.insert(chatMessages).values({
-      id: assistantMsgId,
-      sessionId,
-      role: 'assistant',
-      content: text,
-      createdAt: Date.now(),
-    });
+    await insertChatMessage(assistantMsgId, sessionId, 'assistant', text, Date.now());
 
     return new Response(JSON.stringify({ text }), {
       headers: {
