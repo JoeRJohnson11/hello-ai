@@ -6,12 +6,14 @@ import {
   deleteOldChatMessages,
   asc,
   eq,
+  ensureMigrations,
 } from '@hello-ai/data-persistence';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  await ensureMigrations();
   const sessionId = await getOrCreateSessionId();
 
   await deleteOldChatMessages();
@@ -39,6 +41,7 @@ export async function GET() {
 }
 
 export async function DELETE() {
+  await ensureMigrations();
   const sessionId = await getOrCreateSessionId();
   await db.delete(chatMessages).where(eq(chatMessages.sessionId, sessionId));
   return new Response(JSON.stringify({ ok: true }), {

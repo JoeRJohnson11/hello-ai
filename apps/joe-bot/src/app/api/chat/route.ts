@@ -6,6 +6,7 @@ import {
   sessionCookieHeader,
   asc,
   eq,
+  ensureMigrations,
 } from '@hello-ai/data-persistence';
 
 export const runtime = 'nodejs';
@@ -65,6 +66,7 @@ export async function POST(req: Request) {
       });
     }
 
+    await ensureMigrations();
     const sessionId = await getOrCreateSessionId();
 
     // CI-friendly: don't call external services in CI

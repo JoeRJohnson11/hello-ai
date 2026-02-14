@@ -4,6 +4,7 @@ import {
   eq,
   getOrCreateSessionId,
   sessionCookieHeader,
+  ensureMigrations,
 } from '@hello-ai/data-persistence';
 
 export const runtime = 'nodejs';
@@ -18,6 +19,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  await ensureMigrations();
   const sessionId = await getOrCreateSessionId();
   const { id } = await params;
 
@@ -90,6 +92,7 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  await ensureMigrations();
   const sessionId = await getOrCreateSessionId();
   const { id } = await params;
 

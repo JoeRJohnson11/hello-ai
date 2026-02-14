@@ -6,6 +6,7 @@ import {
   getOrCreateSessionId,
   sessionCookieHeader,
   deleteOldCompletedTodos,
+  ensureMigrations,
 } from '@hello-ai/data-persistence';
 
 export const runtime = 'nodejs';
@@ -17,6 +18,7 @@ const cookieHeader = (sessionId: string) => ({
 });
 
 export async function GET() {
+  await ensureMigrations();
   const sessionId = await getOrCreateSessionId();
   await deleteOldCompletedTodos();
 
@@ -38,6 +40,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  await ensureMigrations();
   const sessionId = await getOrCreateSessionId();
   const body = (await req.json()) as { text?: string };
   const text = (body.text ?? '').trim();

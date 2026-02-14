@@ -1,4 +1,4 @@
-export { db } from './db';
+export { db, ensureMigrations } from './db';
 export { chatMessages, todos } from './schema';
 export { eq, asc } from 'drizzle-orm';
 export type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
