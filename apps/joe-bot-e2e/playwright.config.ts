@@ -2,8 +2,12 @@ import { defineConfig, devices } from '@playwright/test';
 import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
 
-// For CI, you may want to set BASE_URL to the deployed application.
-const baseURL = process.env['BASE_URL'] || 'http://localhost:3010';
+// For CI with Vercel Preview: set BASE_URL_JOE_BOT to the deployment URL.
+const baseURL =
+  process.env['BASE_URL_JOE_BOT'] ||
+  process.env['BASE_URL'] ||
+  'http://localhost:3010';
+const isDeployedUrl = baseURL.startsWith('https://');
 
 /**
  * Read environment variables from file.
@@ -22,8 +26,10 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
-  /* Run your local dev server before starting the tests */
-  webServer: {
+  /* Run your local dev server before starting the tests (skip when using deployed URL) */
+  webServer: isDeployedUrl
+    ? undefined
+    : {
     command: 'pnpm exec nx run @hello-ai/joe-bot:dev',
     url: 'http://localhost:3010',
     reuseExistingServer: true,
