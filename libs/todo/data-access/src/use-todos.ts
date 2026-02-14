@@ -1,33 +1,115 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface Todo {
-  id: number;
+  id: string;
   text: string;
   completed: boolean;
 }
 
 export type TodoFilter = 'all' | 'active' | 'completed';
 
+async function fetchTodos(): Promise<Todo[]> {
+  const res = await fetch('/api/todos');
+  const data = (await res.json()) as { todos?: { id: string; text: string; completed: boolean }[] };
+  if (!res.ok) throw new Error('Failed to fetch todos');
+  return (data.todos ?? []).map((t) => ({ id: t.id, text: t.text, completed: t.completed }));
+}
+
+async function createTodo(text: string): Promise<Todo> {
+  const res = await fetch('/api/todos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  });
+  const data = (await res.json()) as { todo?: Todo; error?: string };
+  if (!res.ok) throw new Error(data.error ?? 'Failed to create todo');
+  if (!data.todo) throw new Error('No todo in response');
+  return data.todo;
+}
+
+async function updateTodo(id: string, updates: { completed?: boolean }): Promise<Todo> {
+  const res = await fetch(`/api/todos/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates),
+  });
+  const data = (await res.json()) as { todo?: Todo; error?: string };
+  if (!res.ok) throw new Error(data.error ?? 'Failed to update todo');
+  if (!data.todo) throw new Error('No todo in response');
+  return data.todo;
+}
+
+async function removeTodo(id: string): Promise<void> {
+  const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const data = (await res.json()) as { error?: string };
+    throw new Error(data.error ?? 'Failed to delete todo');
+  }
+}
+
 export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<TodoFilter>('all');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  function addTodo(text: string) {
+  const loadTodos = useCallback(async () => {
+    try {
+      setError(null);
+      const data = await fetchTodos();
+      setTodos(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load todos');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadTodos();
+  }, [loadTodos]);
+
+  async function addTodo(text: string) {
     const trimmed = text.trim();
     if (!trimmed) return;
-    setTodos((prev) => [...prev, { id: Date.now(), text: trimmed, completed: false }]);
+    try {
+      const todo = await createTodo(trimmed);
+      setTodos((prev) => [...prev, todo]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to add todo');
+    }
   }
 
-  function toggleTodo(id: number) {
+  async function toggleTodo(id: string) {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+    const completed = !todo.completed;
     setTodos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+      prev.map((t) => (t.id === id ? { ...t, completed } : t))
     );
+    try {
+      const updated = await updateTodo(id, { completed });
+      setTodos((prev) =>
+        prev.map((t) => (t.id === id ? updated : t))
+      );
+    } catch (e) {
+      setTodos((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, completed: !completed } : t))
+      );
+      setError(e instanceof Error ? e.message : 'Failed to toggle todo');
+    }
   }
 
-  function deleteTodo(id: number) {
+  async function deleteTodo(id: string) {
     setTodos((prev) => prev.filter((t) => t.id !== id));
+    try {
+      await removeTodo(id);
+    } catch (e) {
+      loadTodos();
+      setError(e instanceof Error ? e.message : 'Failed to delete todo');
+    }
   }
 
   const filteredTodos = todos.filter((t) => {
@@ -36,5 +118,15 @@ export function useTodos() {
     return true;
   });
 
-  return { todos, filteredTodos, filter, setFilter, addTodo, toggleTodo, deleteTodo };
+  return {
+    todos,
+    filteredTodos,
+    filter,
+    setFilter,
+    addTodo,
+    toggleTodo,
+    deleteTodo,
+    isLoading,
+    error,
+  };
 }
