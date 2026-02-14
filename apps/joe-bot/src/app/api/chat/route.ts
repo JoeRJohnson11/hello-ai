@@ -15,6 +15,20 @@ export const maxDuration = 30;
 
 type ChatRequest = { message?: string };
 
+// Allow CORS preflight (OPTIONS) - unhandled preflight can surface as 405
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      Allow: 'POST, OPTIONS',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+}
+
 const OPENING_PHRASES = [
   'If I were Joe, and I almost am,',
   'The amazing and powerful Joe would',
@@ -57,6 +71,18 @@ function nextOpeningPhrase(): string {
 
 export async function POST(req: Request) {
   try {
+    // Fail fast with clear error if Turso env vars missing in production (Vercel)
+    if (!process.env.TURSO_DATABASE_URL && process.env.VERCEL === '1') {
+      console.error('/api/chat: TURSO_DATABASE_URL not set in Vercel');
+      return new Response(
+        JSON.stringify({
+          error:
+            'Database not configured. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN in Vercel project settings.',
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+
     const body = (await req.json()) as ChatRequest;
     const msg = (body.message ?? '').trim();
 
@@ -173,7 +199,13 @@ export async function POST(req: Request) {
       },
     });
   } catch (err: unknown) {
-    console.error('/api/chat error:', err);
+    // Log full detail for debugging (especially OpenAI 400s)
+    const errObj = err as { message?: string; status?: number; error?: { message?: string }; response?: { body?: unknown } };
+    console.error('/api/chat error:', {
+      message: err instanceof Error ? err.message : String(err),
+      status: errObj?.status,
+      errorBody: errObj?.error ?? errObj?.response?.body,
+    });
     const message = err instanceof Error ? err.message : 'Unknown server error';
     return new Response(JSON.stringify({ error: message }), {
       status: 500,
