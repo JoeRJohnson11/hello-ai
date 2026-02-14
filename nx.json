@@ -61,8 +61,18 @@
     }
   ],
   "targetDefaults": {
-    "test": {
-      "dependsOn": ["^build"]
+    "lint": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{projectRoot}/eslint.config.js",
+        "{projectRoot}/eslint.config.cjs",
+        "{projectRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*",
+        {
+          "externalDependencies": ["eslint"]
+        }
+      ]
     }
   },
   "generators": {

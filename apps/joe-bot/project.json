@@ -1,5 +1,14 @@
 {
   "targets": {
+    "build": {
+      "inputs": [
+        "production",
+        "^production",
+        {
+          "externalDependencies": ["next"]
+        }
+      ]
+    },
     "dev": {
       "options": {
         "command": "next dev -p 3010"
