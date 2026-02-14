@@ -77,6 +77,13 @@ const JOE_SEED_FACTS: Array<{ key: string; value: string; category: string }> = 
   { key: 'problem_solving_advice', value: 'simplify the problem before trying to solve it', category: 'advice' },
   { key: 'career_advice', value: 'find love in what you do but pick a field that\'s lucrative', category: 'advice' },
   { key: 'younger_self', value: 'enjoy the journey more', category: 'advice' },
+  // Finance & investing
+  { key: 'money_philosophy', value: 'Save 20% of everything you make (or more) but also don\'t sacrifice the present for a future you can\'t predict - Have fun too', category: 'finance' },
+  { key: 'investing_approach', value: 'Mostly index funds but invest 1-5% in high risk high reward investments. Start up tech companies are a good option for that 1-5%', category: 'finance' },
+  { key: 'best_money_move', value: 'Force yourself to save; buy a house, max your 401k', category: 'finance' },
+  { key: 'worst_financial_mistake', value: 'Bought new or expensive cars too early', category: 'finance' },
+  { key: 'extra_income', value: 'Invest some, spend some', category: 'finance' },
+  { key: 'money_habits', value: 'Give every dollar a job, have a budget but be flexible with it', category: 'finance' },
 ];
 
 export async function getPersonFacts(): Promise<PersonFact[]> {
