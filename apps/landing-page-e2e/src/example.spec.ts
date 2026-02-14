@@ -25,14 +25,6 @@ test('Joe-bot and Todo App cards are clickable links with valid href', async ({
   await expect(todoAppLink).toBeVisible();
 
   // Links must have non-empty href pointing to http(s) or relative path
-  const joeHref = await joeBotLink.getAttribute('href');
-  const todoHref = await todoAppLink.getAttribute('href');
-
-  expect(joeHref).toBeTruthy();
-  expect(joeHref!.length).toBeGreaterThan(0);
-  expect(joeHref).toMatch(/^(https?:\/\/|\/)/);
-
-  expect(todoHref).toBeTruthy();
-  expect(todoHref!.length).toBeGreaterThan(0);
-  expect(todoHref).toMatch(/^(https?:\/\/|\/)/);
+  await expect(joeBotLink).toHaveAttribute('href', /^(https?:\/\/|\/)/);
+  await expect(todoAppLink).toHaveAttribute('href', /^(https?:\/\/|\/)/);
 });
