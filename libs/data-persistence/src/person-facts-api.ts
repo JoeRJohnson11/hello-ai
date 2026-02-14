@@ -38,6 +38,45 @@ const JOE_SEED_FACTS: Array<{ key: string; value: string; category: string }> = 
   { key: 'background', value: 'played baseball in high school, went to art school to do graphic design', category: 'context' },
   { key: 'sports_teams', value: 'Mariners and Seahawks fan', category: 'context' },
   { key: 'fitness', value: 'gym 2-3 times a week, plays golf', category: 'context' },
+  // Round 2: decision-making & problem-solving
+  { key: 'decision_style', value: 'look at data, get a deep understanding then go with experience', category: 'decisions' },
+  { key: 'stuck_go_to', value: 'work hard to understand deeply', category: 'decisions' },
+  { key: 'recent_mind_change', value: 'more reporting from the team is good not a waste of time', category: 'decisions' },
+  { key: 'good_enough_vs_dig_in', value: 'what is the return on time spent', category: 'decisions' },
+  // Learning & growth
+  { key: 'best_book_podcast', value: 'Odd Lots podcast, the book Brief', category: 'learning' },
+  { key: 'learning_style', value: 'reading, listening to experts', category: 'learning' },
+  { key: 'improving_at', value: 'managing effective teams', category: 'learning' },
+  // Customer success & work specifics
+  { key: 'cs_philosophy', value: 'proactiveness, access to data and helping before there\'s a problem', category: 'work' },
+  { key: 'sizing_customer', value: 'where they are currently, where they can be, potential long term relationship, are they collaborative', category: 'work' },
+  { key: 'common_customer_mistake', value: 'reactive', category: 'work' },
+  { key: 'renewals_vs_new_logos', value: 'they are both very important', category: 'work' },
+  // Productivity & tools
+  { key: 'productivity_habit', value: 'list the 3 most important things to do each day that will have the most impact', category: 'productivity' },
+  { key: 'wished_tool', value: 'a tool that automatically answers the right questions with full context', category: 'productivity' },
+  { key: 'inbox_management', value: 'Superhuman email tool which lets you postpone emails so you can get to zero', category: 'productivity' },
+  { key: 'meeting_habit', value: 'leave early if it\'s not helpful, don\'t go if you don\'t know the agenda', category: 'productivity' },
+  // People & leadership
+  { key: 'feedback_style', value: 'direct, in person', category: 'leadership' },
+  { key: 'when_disagrees', value: 'listen and understand', category: 'leadership' },
+  { key: 'how_likes_managed', value: 'given a goal and given autonomy', category: 'leadership' },
+  { key: 'wish_leaders_did', value: 'listen and understand', category: 'leadership' },
+  // Personal / lifestyle
+  { key: 'good_weekend', value: 'golf, family time, a home project', category: 'lifestyle' },
+  { key: 'day_off', value: 'working on a personal project', category: 'lifestyle' },
+  { key: 'guilty_pleasure', value: 'pizza and wine', category: 'lifestyle' },
+  { key: 'proud_habit', value: 'gym time', category: 'lifestyle' },
+  { key: 'recharge', value: 'time with friends, travel', category: 'lifestyle' },
+  // Opinions & hot takes
+  { key: 'hot_take_remote', value: 'it\'s great for autonomy but difficult for productivity', category: 'opinions' },
+  { key: 'hot_take_ai', value: 'it will change the world in a good way', category: 'opinions' },
+  { key: 'overrated', value: 'email', category: 'opinions' },
+  { key: 'underrated', value: 'clear communication', category: 'opinions' },
+  // If Joe were advising
+  { key: 'problem_solving_advice', value: 'simplify the problem before trying to solve it', category: 'advice' },
+  { key: 'career_advice', value: 'find love in what you do but pick a field that\'s lucrative', category: 'advice' },
+  { key: 'younger_self', value: 'enjoy the journey more', category: 'advice' },
 ];
 
 export async function getPersonFacts(): Promise<PersonFact[]> {
@@ -65,7 +104,8 @@ export async function upsertPersonFact(key: string, value: string, category?: st
 
 export async function seedPersonFactsIfEmpty(): Promise<void> {
   const facts = await getPersonFacts();
-  if (facts.length > 0) return;
+  // Seed when empty or when we've added new facts to JOE_SEED_FACTS
+  if (facts.length >= JOE_SEED_FACTS.length) return;
   for (const { key, value, category } of JOE_SEED_FACTS) {
     await upsertPersonFact(key, value, category);
   }
