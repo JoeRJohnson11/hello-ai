@@ -18,8 +18,14 @@ Deploy each app as a separate Vercel project. Set **Root Directory** to the app 
 | **joe-bot** | `OPENAI_API_KEY` | Required server key for `/api/chat` |
 | **joe-bot** | `NEXT_PUBLIC_LANDING_PAGE_URL` | Home link target (fixes 404) |
 | **todo-app** | `NEXT_PUBLIC_LANDING_PAGE_URL` | Home link target (fixes 404) |
+| **joe-bot** | `TURSO_DATABASE_URL` | Turso/libSQL database URL (required for chat persistence) |
+| **joe-bot** | `TURSO_AUTH_TOKEN` | Turso auth token |
+| **todo-app** | `TURSO_DATABASE_URL` | Same Turso database (shared) |
+| **todo-app** | `TURSO_AUTH_TOKEN` | Same auth token |
 
 If the Home link on joe-bot or todo-app returns 404, deploy the landing page and set `NEXT_PUBLIC_LANDING_PAGE_URL` in both apps to its production URL (e.g. `https://hello-ai-landing-page.vercel.app`).
+
+For chat and todo persistence, create a Turso database and set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` in both apps. See [libs/data-persistence/README.md](libs/data-persistence/README.md).
 
 ### E2E against Vercel Preview (optional)
 

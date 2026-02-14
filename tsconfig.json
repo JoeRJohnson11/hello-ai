@@ -7,9 +7,11 @@
     {"path": "./apps/joe-bot"},
     {"path": "./apps/todo-app-e2e"},
     {"path": "./apps/todo-app"},
+    {"path": "./apps/landing-page-e2e"},
     {"path": "./apps/landing-page"},
     {"path": "./libs/shared/ui"},
     {"path": "./libs/shared/design"},
-    {"path": "./libs/todo/data-access"}
+    {"path": "./libs/todo/data-access"},
+    {"path": "./libs/data-persistence"}
   ]
 }

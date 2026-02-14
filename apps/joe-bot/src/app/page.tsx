@@ -44,8 +44,30 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 3000);
-    return () => clearTimeout(t);
+    let cancelled = false;
+    fetch('/api/messages')
+      .then((res) => res.json())
+      .then((data: { messages?: { id: string; role: string; text: string; ts: number }[] }) => {
+        if (cancelled) return;
+        const msgs = data.messages ?? [];
+        if (msgs.length > 0) {
+          setMessages(
+            msgs.map((m) => ({
+              id: m.id,
+              role: m.role as 'user' | 'assistant',
+              text: m.text,
+              ts: m.ts,
+              kind: 'normal' as const,
+            }))
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -126,10 +148,15 @@ export default function Page() {
     }
   }
 
-  function clearChat() {
+  async function clearChat() {
     setError(null);
     setInput('');
     setIsSending(false);
+    try {
+      await fetch('/api/messages', { method: 'DELETE' });
+    } catch {
+      // ignore
+    }
     setMessages([
       {
         id: uid(),

@@ -8,7 +8,17 @@ import { useTodos, type TodoFilter } from '@hello-ai/todo-data-access';
 const FILTERS: TodoFilter[] = ['all', 'active', 'completed'];
 
 export default function Index() {
-  const { todos, filteredTodos, filter, setFilter, addTodo, toggleTodo, deleteTodo } = useTodos();
+  const {
+    todos,
+    filteredTodos,
+    filter,
+    setFilter,
+    addTodo,
+    toggleTodo,
+    deleteTodo,
+    isLoading,
+    error,
+  } = useTodos();
   const [input, setInput] = useState('');
 
   function handleAdd() {
@@ -23,6 +33,11 @@ export default function Index() {
           <h1 className="text-2xl font-semibold tracking-tight">Todos</h1>
         </AppHeader>
 
+        {error && (
+          <div className="mb-4 rounded-xl border border-red-900/40 bg-red-950/40 px-3 py-2 text-sm text-red-200">
+            {error}
+          </div>
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -59,7 +74,9 @@ export default function Index() {
           className="rounded-2xl border border-zinc-800 bg-zinc-950/50"
           style={{ boxShadow: tokens.shadow.md }}
         >
-          {filteredTodos.length === 0 ? (
+          {isLoading ? (
+            <p className="text-zinc-500 text-sm text-center py-8">Loading…</p>
+          ) : filteredTodos.length === 0 ? (
             <p className="text-zinc-500 text-sm text-center py-8">
               {todos.length === 0
                 ? 'No todos yet. Add one above!'
