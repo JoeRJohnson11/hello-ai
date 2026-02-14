@@ -186,6 +186,9 @@ importers:
       next:
         specifier: ~16.1.6
         version: 16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.97.3)
+      openai:
+        specifier: ^6.18.0
+        version: 6.18.0(ws@8.19.0)(zod@4.3.6)
       react:
         specifier: 19.2.4
         version: 19.2.4
@@ -16115,6 +16118,11 @@ snapshots:
   openai@6.18.0(ws@8.18.0)(zod@4.3.6):
     optionalDependencies:
       ws: 8.18.0
+      zod: 4.3.6
+
+  openai@6.18.0(ws@8.19.0)(zod@4.3.6):
+    optionalDependencies:
+      ws: 8.19.0
       zod: 4.3.6
 
   opener@1.5.2: {}

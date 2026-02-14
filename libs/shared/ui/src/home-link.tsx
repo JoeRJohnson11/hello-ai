@@ -9,10 +9,33 @@ function isLocalHost(hostname: string) {
   return hostname === 'localhost' || hostname === '127.0.0.1';
 }
 
+function normalizeLandingUrl(candidate: string | undefined) {
+  const raw = candidate?.trim();
+  if (!raw) return FALLBACK_LANDING_URL;
+  if (raw.startsWith('/')) return FALLBACK_LANDING_URL;
+
+  try {
+    const parsed = new URL(raw);
+    if (!parsed.hostname) return FALLBACK_LANDING_URL;
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return FALLBACK_LANDING_URL;
+    }
+    return parsed.toString();
+  } catch {
+    // Support host-only values from env vars like "example.com".
+    try {
+      const parsed = new URL(`https://${raw}`);
+      if (!parsed.hostname) return FALLBACK_LANDING_URL;
+      return parsed.toString();
+    } catch {
+      return FALLBACK_LANDING_URL;
+    }
+  }
+}
+
 export function HomeLink() {
   const [url, setUrl] = useState(
-    () =>
-      process.env.NEXT_PUBLIC_LANDING_PAGE_URL || FALLBACK_LANDING_URL
+    () => normalizeLandingUrl(process.env.NEXT_PUBLIC_LANDING_PAGE_URL)
   );
 
   useEffect(() => {
@@ -26,7 +49,7 @@ export function HomeLink() {
 
   return (
     <a
-      href={url}
+      href={url.startsWith('http://') || url.startsWith('https://') ? url : FALLBACK_LANDING_URL}
       className="inline-flex cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:border-zinc-500 hover:bg-zinc-800 hover:text-zinc-100 active:scale-[0.98] transition-all duration-150"
     >
       <span aria-hidden>⌂</span>

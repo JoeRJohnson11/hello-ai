@@ -11,6 +11,7 @@ import {
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
 
 type ChatRequest = { message?: string };
 
@@ -99,7 +100,7 @@ export async function POST(req: Request) {
       return new Response(
         JSON.stringify({
           error:
-            'OPENAI_API_KEY not found. Ensure .env.local is configured (repo root or apps/joe-bot) and restart dev server.',
+            'OPENAI_API_KEY not found. Configure it for this deployment (e.g. Vercel project env) and redeploy.',
         }),
         { status: 500, headers: { 'Content-Type': 'application/json' } },
       );
