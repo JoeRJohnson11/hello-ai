@@ -34,7 +34,19 @@
   ],
   "references": [
     {
-      "path": "../../shared"
+      "path": "../../libs/todo/data-access"
+    },
+    {
+      "path": "../../libs/shared/ui"
+    },
+    {
+      "path": "../../libs/shared/design"
+    },
+    {
+      "path": "../../libs/data-persistence/todo"
+    },
+    {
+      "path": "../../libs/data-persistence/session"
     }
   ],
   "exclude": [

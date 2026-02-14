@@ -34,7 +34,7 @@
   ],
   "references": [
     {
-      "path": "../../shared"
+      "path": "../../libs/shared/design"
     }
   ],
   "exclude": [

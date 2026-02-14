@@ -13,5 +13,18 @@
   },
   "include": ["src/index.ts"],
   "exclude": ["**/*.spec.ts"],
-  "references": []
+  "references": [
+    {
+      "path": "todo/tsconfig.lib.json"
+    },
+    {
+      "path": "session/tsconfig.lib.json"
+    },
+    {
+      "path": "core/tsconfig.lib.json"
+    },
+    {
+      "path": "chat/tsconfig.lib.json"
+    }
+  ]
 }
