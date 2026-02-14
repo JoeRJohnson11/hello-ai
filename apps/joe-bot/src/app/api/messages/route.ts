@@ -12,6 +12,19 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      Allow: 'GET, DELETE, OPTIONS',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+}
+
 export async function GET() {
   await ensureMigrations();
   const sessionId = await getOrCreateSessionId();

@@ -1,5 +1,4 @@
 import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
 import { sql } from 'drizzle-orm';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -17,15 +16,42 @@ function getLocalDbPath(): string {
   }
 }
 
-const url = process.env.TURSO_DATABASE_URL ?? getLocalDbPath();
-const authToken = process.env.TURSO_AUTH_TOKEN;
+// Normalize env vars - Vercel often adds newlines when pasting; avoid surrounding quotes
+let url = (process.env.TURSO_DATABASE_URL ?? getLocalDbPath()).trim().replace(/^["']|["']$/g, '');
+const rawToken = process.env.TURSO_AUTH_TOKEN?.trim().replace(/^["']|["']$/g, '') ?? '';
+const authToken = rawToken || undefined;
+
+// Only pass authToken for remote URLs - file: URLs ignore it and can cause 400
+const isRemote = url.startsWith('libsql://') || url.startsWith('https://');
+
+// On Vercel: use https:// instead of libsql:// to force HTTP (avoid WebSocket 400 in serverless)
+if (process.env.VERCEL === '1' && url.startsWith('libsql://')) {
+  url = url.replace(/^libsql:\/\//, 'https://');
+}
+
+// Use @libsql/client/web on Vercel - fetch-only, no native deps
+const isVercel = process.env.VERCEL === '1';
+const useWebClient = isVercel && isRemote;
+
+const { createClient } = useWebClient
+  ? await import('@libsql/client/web')
+  : await import('@libsql/client');
 
 const client = createClient({
   url,
-  ...(authToken && { authToken }),
+  ...(isRemote && authToken && { authToken }),
 });
 
 export const db = drizzle(client, { schema });
+
+// Log config at load (helps debug Turso 400 - redacts secrets)
+if (process.env.VERCEL === '1' && isRemote) {
+  const hasToken = Boolean(authToken);
+  const tokenLength = authToken?.length ?? 0;
+  console.info(
+    `[data-persistence] url=${url.slice(0, 40)}... auth=${hasToken} tokenLen=${tokenLength}`
+  );
+}
 
 // Auto-run migrations on first import
 let migrationPromise: Promise<void> | null = null;
