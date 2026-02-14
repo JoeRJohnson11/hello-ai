@@ -2,9 +2,13 @@ import { defineConfig, devices } from '@playwright/test';
 import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
 
-// For CI, you may want to set BASE_URL to the deployed application.
+// For CI with Vercel Preview: set BASE_URL_TODO_APP to the deployment URL.
 // todo-app dev runs on port 3012 (see apps/todo-app/project.json)
-const baseURL = process.env['BASE_URL'] || 'http://localhost:3012';
+const baseURL =
+  process.env['BASE_URL_TODO_APP'] ||
+  process.env['BASE_URL'] ||
+  'http://localhost:3012';
+const isDeployedUrl = baseURL.startsWith('https://');
 
 /**
  * Read environment variables from file.
@@ -23,8 +27,10 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
-  /* Run your local dev server before starting the tests */
-  webServer: {
+  /* Run your local dev server before starting the tests (skip when using deployed URL) */
+  webServer: isDeployedUrl
+    ? undefined
+    : {
     command: 'pnpm exec nx run @hello-ai/todo-app:dev',
     url: 'http://localhost:3012',
     reuseExistingServer: true,
