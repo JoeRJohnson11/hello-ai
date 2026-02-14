@@ -1,3 +1,4 @@
+/** nx-agents full-run test */
 import { test, expect } from '@playwright/test';
 
 test('shows chat UI', async ({ page }) => {

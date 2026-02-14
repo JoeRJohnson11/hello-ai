@@ -1,4 +1,5 @@
 'use client';
+/** nx-agents full-run test */
 
 import { useState } from 'react';
 import { AppHeader, Button, TodoCheckIcon } from '@hello-ai/shared-ui';

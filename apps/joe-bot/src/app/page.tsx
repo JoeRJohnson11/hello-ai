@@ -1,4 +1,5 @@
 'use client';
+/** nx-agents full-run test */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
