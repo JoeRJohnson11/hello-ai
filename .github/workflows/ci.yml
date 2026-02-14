@@ -1,3 +1,4 @@
+# CI workflow for lint, test, build, and e2e
 name: CI
 
 env:
