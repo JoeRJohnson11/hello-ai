@@ -1,3 +1,4 @@
+/** nx-agents full-run test */
 import { ProjectLinks } from './project-links';
 
 export default function LandingPage() {

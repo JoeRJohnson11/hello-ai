@@ -53,11 +53,10 @@ jobs:
             echo "NX_BASE=origin/${{ github.base_ref || 'main' }}" >> $GITHUB_ENV
           fi
 
-      - name: Run lint, test, build (distributed via Nx Agents)
+      - name: Run lint, test, build (distributed via Nx Cloud compute)
         run: |
           npx nx-cloud start-ci-run \
-            --distribute-on="manual" \
-            --stop-agents-after="lint,test,build" \
+            --distribute-on="4 linux-medium-js" \
             --stop-agents-on-failure \
             -- pnpm nx affected -t lint test build
 
@@ -78,35 +77,3 @@ jobs:
 
       - run: pnpm nx fix-ci
         if: always()
-
-  agent:
-    runs-on: ubuntu-latest
-    container: mcr.microsoft.com/playwright:v1.58.2-noble
-    strategy:
-      fail-fast: false
-      matrix:
-        index: [1, 2, 3, 4]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          filter: tree:0
-          fetch-depth: 0
-
-      - name: Set git safe directory
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          run_install: false
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "pnpm"
-          cache-dependency-path: pnpm-lock.yaml
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Start Nx Agent
-        run: npx nx-cloud start-agent

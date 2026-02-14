@@ -1,3 +1,4 @@
+/** nx-agents full-run test */
 export { db, ensureMigrations } from './db';
 export { chatMessages, todos, personFacts } from './schema';
 export { eq, asc } from 'drizzle-orm';
