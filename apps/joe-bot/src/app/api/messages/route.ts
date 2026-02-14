@@ -1,12 +1,10 @@
 import {
-  db,
-  chatMessages,
   getOrCreateSessionId,
   sessionCookieHeader,
+  ensureChatMigrations,
+  getChatMessages,
+  deleteChatMessagesForSession,
   deleteOldChatMessages,
-  asc,
-  eq,
-  ensureMigrations,
 } from '@hello-ai/data-persistence';
 
 export const runtime = 'nodejs';
@@ -26,16 +24,12 @@ export async function OPTIONS() {
 }
 
 export async function GET() {
-  await ensureMigrations();
+  await ensureChatMigrations();
   const sessionId = await getOrCreateSessionId();
 
   await deleteOldChatMessages();
 
-  const rows = await db
-    .select()
-    .from(chatMessages)
-    .where(eq(chatMessages.sessionId, sessionId))
-    .orderBy(asc(chatMessages.createdAt));
+  const rows = await getChatMessages(sessionId);
 
   const messages = rows.map((r) => ({
     id: r.id,
@@ -54,9 +48,9 @@ export async function GET() {
 }
 
 export async function DELETE() {
-  await ensureMigrations();
+  await ensureChatMigrations();
   const sessionId = await getOrCreateSessionId();
-  await db.delete(chatMessages).where(eq(chatMessages.sessionId, sessionId));
+  await deleteChatMessagesForSession(sessionId);
   return new Response(JSON.stringify({ ok: true }), {
     headers: {
       'Content-Type': 'application/json',

@@ -29,7 +29,7 @@ if (process.env.VERCEL === '1' && url.startsWith('libsql://')) {
   url = url.replace(/^libsql:\/\//, 'https://');
 }
 
-// Use @libsql/client/web on Vercel - fetch-only, no native deps
+// Use @libsql/client/web on Vercel (fetch-only); else default client for file: support
 const isVercel = process.env.VERCEL === '1';
 const useWebClient = isVercel && isRemote;
 
@@ -56,33 +56,63 @@ if (process.env.VERCEL === '1' && isRemote) {
 // Auto-run migrations on first import
 let migrationPromise: Promise<void> | null = null;
 
+async function rawTursoExecute(sqlStatement: string): Promise<{ ok: boolean; status?: number; body?: string }> {
+  if (!isRemote || !authToken) return { ok: false };
+  const baseUrl = url.startsWith('https://') ? url : `https://${url.replace(/^libsql:\/\//, '')}`;
+  const pipelineUrl = `${baseUrl}/v2/pipeline`;
+  try {
+    const res = await fetch(pipelineUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        requests: [{ type: 'execute' as const, stmt: { sql: sqlStatement } }, { type: 'close' as const }],
+      }),
+    });
+    const body = await res.text();
+    if (!res.ok) {
+      console.error('[data-persistence] raw Turso request failed', { sql: sqlStatement.slice(0, 50), status: res.status, body: body.slice(0, 300) });
+      return { ok: false, status: res.status, body };
+    }
+    return { ok: true };
+  } catch (e) {
+    console.error('[data-persistence] raw Turso error', e);
+    return { ok: false, body: String(e) };
+  }
+}
+
+const MIGRATION_SQL = [
+  `CREATE TABLE IF NOT EXISTS chat_messages (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, role text NOT NULL, content text NOT NULL, created_at integer NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS todos (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, text text NOT NULL, completed integer DEFAULT 0 NOT NULL, completed_at integer, created_at integer NOT NULL)`,
+];
+
 export async function ensureMigrations(): Promise<void> {
   if (!migrationPromise) {
     migrationPromise = (async () => {
+      // Use raw HTTP for Turso (avoids libSQL client 400 in serverless)
+      const hasUrl = Boolean(process.env.TURSO_DATABASE_URL);
+      const hasToken = Boolean(process.env.TURSO_AUTH_TOKEN);
+      if (process.env.VERCEL === '1') {
+        console.info('[data-persistence] ensureMigrations', { isRemote, hasUrl, hasToken, authTokenLen: authToken?.length ?? 0 });
+      }
+      if (isRemote && authToken) {
+        for (const stmt of MIGRATION_SQL) {
+          const result = await rawTursoExecute(stmt);
+          if (!result.ok) {
+            console.warn('[data-persistence] Migration failed:', result.body ?? result.status);
+          }
+        }
+        return;
+      }
+      if (isRemote && !authToken) {
+        throw new Error('TURSO_AUTH_TOKEN is required when using TURSO_DATABASE_URL. Add it to your Vercel project env vars.');
+      }
       try {
-        // Create tables if they don't exist (idempotent)
-        await db.run(sql`
-          CREATE TABLE IF NOT EXISTS chat_messages (
-            id text PRIMARY KEY NOT NULL,
-            session_id text NOT NULL,
-            role text NOT NULL,
-            content text NOT NULL,
-            created_at integer NOT NULL
-          )
-        `);
-
-        await db.run(sql`
-          CREATE TABLE IF NOT EXISTS todos (
-            id text PRIMARY KEY NOT NULL,
-            session_id text NOT NULL,
-            text text NOT NULL,
-            completed integer DEFAULT 0 NOT NULL,
-            completed_at integer,
-            created_at integer NOT NULL
-          )
-        `);
+        await db.run(sql`CREATE TABLE IF NOT EXISTS chat_messages (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, role text NOT NULL, content text NOT NULL, created_at integer NOT NULL)`);
+        await db.run(sql`CREATE TABLE IF NOT EXISTS todos (id text PRIMARY KEY NOT NULL, session_id text NOT NULL, text text NOT NULL, completed integer DEFAULT 0 NOT NULL, completed_at integer, created_at integer NOT NULL)`);
       } catch (error) {
-        // Silently continue if migrations fail (they may already be applied)
         console.warn('Migration warning (may be already applied):', error);
       }
     })();
