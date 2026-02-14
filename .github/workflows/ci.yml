@@ -57,7 +57,6 @@ jobs:
         run: |
           npx nx-cloud start-ci-run \
             --distribute-on="4 linux-medium-js" \
-            --stop-agents-after="lint,test,build" \
             --stop-agents-on-failure \
             -- pnpm nx affected -t lint test build
 
