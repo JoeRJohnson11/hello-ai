@@ -2,3 +2,10 @@
 
 /* Ensure shared-ui component classes are included */
 @source "../../../../libs/shared/ui/src/**/*.{ts,tsx}";
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background-color: #09090b;
+}

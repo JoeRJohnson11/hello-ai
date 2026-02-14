@@ -6,11 +6,15 @@
 /* ---- Base document styles ---- */
 html,
 body {
-  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  background-color: #09090b;
 }
 
 body {
-  margin: 0;
   font-family:
     ui-sans-serif,
     system-ui,
@@ -22,7 +26,6 @@ body {
     Arial,
     'Apple Color Emoji',
     'Segoe UI Emoji';
-  background-color: #0b1020;
   color: #e5e7eb;
   line-height: 1.5;
 }
@@ -82,10 +85,4 @@ pre {
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
-}
-html,
-body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
 }
