@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { tokens } from '@hello-ai/shared-design';
+import { TodoCheckIcon } from '@hello-ai/shared-ui';
 
 /**
  * Link URLs: env var > localhost heuristic > production fallback.
@@ -81,7 +82,9 @@ export function ProjectLinks() {
             boxShadow: tokens.shadow.md,
           }}
         >
-          <div className="text-6xl">✓</div>
+          <div className="flex items-center justify-center">
+            <TodoCheckIcon size={64} className="text-zinc-100" />
+          </div>
           <h2 className="text-2xl font-semibold text-center">Todo App</h2>
           <p className="text-zinc-400 text-center text-sm">
             Task management

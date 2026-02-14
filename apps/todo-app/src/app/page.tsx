@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AppHeader, Button } from '@hello-ai/shared-ui';
+import { AppHeader, Button, TodoCheckIcon } from '@hello-ai/shared-ui';
 import { tokens } from '@hello-ai/shared-design';
 import { useTodos, type TodoFilter } from '@hello-ai/todo-data-access';
 
@@ -30,7 +30,10 @@ export default function Index() {
     <main className="min-h-[100dvh] bg-zinc-950 text-zinc-100">
       <div className="mx-auto w-full max-w-lg px-4 py-8">
         <AppHeader appName="todo-app" className="mb-6">
-          <h1 className="text-2xl font-semibold tracking-tight">Todos</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
+            <TodoCheckIcon size={28} className="text-zinc-100" />
+            Todos
+          </h1>
         </AppHeader>
 
         {error && (

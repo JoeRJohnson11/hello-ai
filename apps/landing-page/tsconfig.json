@@ -34,7 +34,10 @@
   ],
   "references": [
     {
-      "path": "../../shared"
+      "path": "../../libs/shared/ui"
+    },
+    {
+      "path": "../../libs/shared/design"
     }
   ],
   "exclude": [
