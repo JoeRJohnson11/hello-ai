@@ -24,7 +24,9 @@
       "@hello-ai/shared-design": ["libs/shared/design/src/index.ts"],
       "@hello-ai/shared-design/*": ["libs/shared/design/src/*"],
       "@hello-ai/todo-data-access": ["libs/todo/data-access/src/index.ts"],
-      "@hello-ai/todo-data-access/*": ["libs/todo/data-access/src/*"]
+      "@hello-ai/todo-data-access/*": ["libs/todo/data-access/src/*"],
+      "@hello-ai/data-persistence": ["libs/data-persistence/src/index.ts"],
+      "@hello-ai/data-persistence/*": ["libs/data-persistence/src/*"]
     }
   }
 }

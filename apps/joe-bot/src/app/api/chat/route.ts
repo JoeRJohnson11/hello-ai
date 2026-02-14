@@ -1,4 +1,13 @@
 import OpenAI from 'openai';
+import {
+  db,
+  chatMessages,
+  getOrCreateSessionId,
+  sessionCookieHeader,
+  asc,
+  eq,
+  ensureMigrations,
+} from '@hello-ai/data-persistence';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -57,10 +66,31 @@ export async function POST(req: Request) {
       });
     }
 
+    await ensureMigrations();
+    const sessionId = await getOrCreateSessionId();
+
     // CI-friendly: don't call external services in CI
     if (process.env.CI === 'true') {
+      const userId = `ci-${Date.now()}`;
+      await db.insert(chatMessages).values({
+        id: userId,
+        sessionId,
+        role: 'user',
+        content: msg,
+        createdAt: Date.now(),
+      });
+      await db.insert(chatMessages).values({
+        id: `ci-${Date.now()}-r`,
+        sessionId,
+        role: 'assistant',
+        content: `CI echo: ${msg}`,
+        createdAt: Date.now(),
+      });
       return new Response(JSON.stringify({ text: `CI echo: ${msg}` }), {
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Set-Cookie': sessionCookieHeader(sessionId),
+        },
       });
     }
 
@@ -75,9 +105,31 @@ export async function POST(req: Request) {
       );
     }
 
-    const client = new OpenAI({ apiKey });
+    const history = await db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.sessionId, sessionId))
+      .orderBy(asc(chatMessages.createdAt));
 
+    const userMsgId = crypto.randomUUID();
+    const assistantMsgId = crypto.randomUUID();
+    const now = Date.now();
+
+    await db.insert(chatMessages).values({
+      id: userMsgId,
+      sessionId,
+      role: 'user',
+      content: msg,
+      createdAt: now,
+    });
+
+    const client = new OpenAI({ apiKey });
     const opening = nextOpeningPhrase();
+
+    const chatHistory = history.map((m) => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    }));
 
     const completion = await client.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -97,6 +149,7 @@ export async function POST(req: Request) {
             '- Keep answers tight and practical.\n' +
             '- Avoid buzzwords unless they add clarity.\n',
         },
+        ...chatHistory,
         { role: 'user', content: msg },
       ],
     });
@@ -104,8 +157,19 @@ export async function POST(req: Request) {
     const text =
       completion.choices?.[0]?.message?.content?.trim() ?? '…(no response)';
 
+    await db.insert(chatMessages).values({
+      id: assistantMsgId,
+      sessionId,
+      role: 'assistant',
+      content: text,
+      createdAt: Date.now(),
+    });
+
     return new Response(JSON.stringify({ text }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Set-Cookie': sessionCookieHeader(sessionId),
+      },
     });
   } catch (err: unknown) {
     console.error('/api/chat error:', err);

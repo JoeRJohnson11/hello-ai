@@ -2,5 +2,6 @@ packages:
   - 'apps/*'
   - 'libs/shared/*'
   - 'libs/todo/*'
+  - 'libs/data-persistence'
 autoInstallPeers: true
 strictPeerDependencies: false

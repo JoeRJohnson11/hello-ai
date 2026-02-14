@@ -3,12 +3,15 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "@hello-ai/data-persistence": "workspace:*",
+    "@hello-ai/shared-design": "workspace:*",
+    "@hello-ai/shared-ui": "workspace:*",
+    "@hello-ai/todo-data-access": "workspace:*",
+    "@libsql/client": "^0.14.0",
+    "drizzle-orm": "^0.36.4",
     "next": "~16.0.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@hello-ai/shared-ui": "workspace:*",
-    "@hello-ai/shared-design": "workspace:*",
-    "@hello-ai/todo-data-access": "workspace:*"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18"
