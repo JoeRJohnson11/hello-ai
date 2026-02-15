@@ -61,7 +61,6 @@ jobs:
         run: |
           npx nx-cloud start-ci-run \
             --distribute-on=".nx/workflows/distribution-config.yaml" \
-            --stop-agents-after=lint,test,build \
             --stop-agents-on-failure \
             -- pnpm nx affected -t lint test build
 
