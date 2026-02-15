@@ -9,6 +9,16 @@
           "runtime": "node -e \"console.log(process.env.BASE_URL_JOE_BOT || process.env.BASE_URL || 'local')\""
         }
       ]
+    },
+    "e2e-preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/joe-bot-e2e",
+        "command": "playwright test"
+      },
+      "dependsOn": ["^build"],
+      "cache": false,
+      "inputs": ["default", "^production", { "externalDependencies": ["@playwright/test"] }]
     }
   }
 }
