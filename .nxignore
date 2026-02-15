@@ -1,0 +1,3 @@
+# CI and workflow config changes shouldn't trigger affected builds
+.github/
+.nx/workflows/
