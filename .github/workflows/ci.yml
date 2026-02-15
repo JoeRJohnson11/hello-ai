@@ -47,17 +47,20 @@ jobs:
           main-branch-name: 'main'
           workflow-id: 'ci.yml'
 
-      - name: Set NX_BASE fallback
+      - name: Set NX_BASE and NX_HEAD fallbacks
         run: |
           if [ -z "${NX_BASE}" ]; then
             echo "NX_BASE=origin/${{ github.base_ref || 'main' }}" >> $GITHUB_ENV
           fi
+          if [ -z "${NX_HEAD}" ]; then
+            echo "NX_HEAD=${{ github.sha }}" >> $GITHUB_ENV
+          fi
+        # NX_BASE and NX_HEAD persist for the whole job; both distributed lint/test/build and e2e use the same affected graph
 
       - name: Run lint, test, build (distributed via Nx Cloud agents)
         run: |
           npx nx-cloud start-ci-run \
             --distribute-on=".nx/workflows/distribution-config.yaml" \
-            --stop-agents-after=lint,test,build \
             --stop-agents-on-failure \
             -- pnpm nx affected -t lint test build
 
@@ -73,8 +76,16 @@ jobs:
         run: . ./.github/scripts/wait-for-vercel-preview-urls.sh
 
       # E2E runs on coordinator only (needs BASE_URL_* from Vercel wait for preview deployments)
+      # Use e2e-preview (uncacheable) when Vercel preview URLs vary per PR; use e2e (cacheable) otherwise
       - name: Run E2E tests
-        run: pnpm nx affected -t e2e
+        run: |
+          if [ "${VERCEL_PREVIEW_ENABLED:-false}" = 'true' ]; then
+            pnpm nx affected -t e2e-preview
+          else
+            pnpm nx affected -t e2e
+          fi
+        env:
+          VERCEL_PREVIEW_ENABLED: ${{ vars.VERCEL_PREVIEW_ENABLED }}
 
       - run: pnpm nx fix-ci
         if: always()
