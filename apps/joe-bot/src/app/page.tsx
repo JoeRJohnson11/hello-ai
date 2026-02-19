@@ -311,10 +311,14 @@ export default function Page() {
             <div className="mb-2 flex justify-start">
               <ImageAttachmentPicker
                 files={attachments}
-                onChange={setAttachments}
+                onChange={(files) => {
+                  setError(null);
+                  setAttachments(files);
+                }}
                 maxCount={4}
-                maxBytesPerFile={1024 * 1024}
+                maxBytesPerFile={5 * 1024 * 1024}
                 disabled={isSending}
+                onConversionError={setError}
               />
             </div>
             <div className="flex gap-2">
