@@ -5,6 +5,16 @@ import { Button } from '@hello-ai/shared-ui';
 import { tokens } from '@hello-ai/shared-design';
 
 const HEIC_TYPES = new Set(['image/heic', 'image/heif']);
+const HEIC_EXT = /\.heic$/i;
+const HEIF_EXT = /\.heif$/i;
+
+function isHeicFile(file: File): boolean {
+  if (HEIC_TYPES.has(file.type)) return true;
+  // iOS Safari often reports empty type for HEIC - check extension
+  if (!file.type && (HEIC_EXT.test(file.name) || HEIF_EXT.test(file.name)))
+    return true;
+  return false;
+}
 
 export type ImageAttachmentPickerProps = {
   files: File[];
@@ -53,7 +63,7 @@ export function ImageAttachmentPicker({
 
       for (const f of combined) {
         if (f.size > maxBytesPerFile) continue;
-        if (HEIC_TYPES.has(f.type)) {
+        if (isHeicFile(f)) {
           try {
             const { default: heic2any } = await import('heic2any');
             const converted = await heic2any({
@@ -87,7 +97,8 @@ export function ImageAttachmentPicker({
     [files, onChange],
   );
 
-  const accept = allowedTypes.join(',');
+  // Use image/* so iOS shows full photo library including HEIC (type often empty on iOS)
+  const accept = 'image/*';
   const inputId = React.useId();
   const isDisabled = disabled || files.length >= maxCount;
 
