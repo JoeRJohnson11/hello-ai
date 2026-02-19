@@ -4,15 +4,18 @@ import * as React from 'react';
 import { Button } from '@hello-ai/shared-ui';
 import { tokens } from '@hello-ai/shared-design';
 
-const HEIC_TYPES = new Set(['image/heic', 'image/heif']);
-const HEIC_EXT = /\.heic$/i;
-const HEIF_EXT = /\.heif$/i;
+const HEIF_TYPES = new Set([
+  'image/heic',
+  'image/heif',
+  'image/heic-sequence',
+  'image/heif-sequence',
+]);
+const HEIF_EXT = /\.(heic|heif|hif|heics|heifs)$/i;
 
-function isHeicFile(file: File): boolean {
-  if (HEIC_TYPES.has(file.type)) return true;
-  // iOS Safari often reports empty type for HEIC - check extension
-  if (!file.type && (HEIC_EXT.test(file.name) || HEIF_EXT.test(file.name)))
-    return true;
+function isHeifFile(file: File): boolean {
+  if (HEIF_TYPES.has(file.type)) return true;
+  // iOS Safari often reports empty type for HEIC/HEIF - check extension
+  if (!file.type && HEIF_EXT.test(file.name)) return true;
   return false;
 }
 
@@ -66,6 +69,8 @@ export type ImageAttachmentPickerProps = {
   disabled?: boolean;
   /** Validation error message to display */
   error?: string | null;
+  /** Called when HEIC conversion fails (e.g. Safari/iOS known issue) */
+  onConversionError?: (message: string) => void;
 };
 
 const DEFAULT_MAX_COUNT = 4;
@@ -82,6 +87,30 @@ function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ');
 }
 
+/** Try heic2any; returns null if conversion fails. */
+async function tryConvertHeic(
+  file: File,
+  maxBytesPerFile: number,
+  resizeToFit: (blob: Blob, max: number, name: string) => Promise<File>
+): Promise<File | null> {
+  const { default: heic2any } = await import('heic2any');
+  const converted = await heic2any({
+    blob: file,
+    toType: 'image/jpeg',
+    quality: 0.9,
+  });
+  const blob = Array.isArray(converted) ? converted[0] : converted;
+  let jpegFile = new File(
+    [blob],
+    file.name.replace(/\.[^.]+$/i, '.jpg'),
+    { type: 'image/jpeg' }
+  );
+  if (jpegFile.size > maxBytesPerFile) {
+    jpegFile = await resizeToFit(blob, maxBytesPerFile, jpegFile.name);
+  }
+  return jpegFile.size <= maxBytesPerFile ? jpegFile : null;
+}
+
 export function ImageAttachmentPicker({
   files,
   onChange,
@@ -90,6 +119,7 @@ export function ImageAttachmentPicker({
   allowedTypes = DEFAULT_TYPES,
   disabled = false,
   error,
+  onConversionError,
 }: ImageAttachmentPickerProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -103,32 +133,26 @@ export function ImageAttachmentPicker({
       const valid: File[] = [];
 
       const HEIC_MAX_BYTES = 20 * 1024 * 1024; // Allow large HEIC (conversion + resize)
+      const tryHeic = (f: File) =>
+        tryConvertHeic(f, maxBytesPerFile, resizeImageToFit);
+
       for (const f of combined) {
-        if (isHeicFile(f)) {
-          if (f.size > HEIC_MAX_BYTES) continue; // Too large even for conversion
+        const isHeif = isHeifFile(f);
+        // iOS Safari often gives HEIC/HEIF with empty type and no extension
+        const maybeHeif = !f.type && f.size > 0 && f.size <= HEIC_MAX_BYTES;
+
+        if (isHeif || maybeHeif) {
+          if (f.size > HEIC_MAX_BYTES) continue;
           try {
-            const { default: heic2any } = await import('heic2any');
-            const converted = await heic2any({
-              blob: f,
-              toType: 'image/jpeg',
-              quality: 0.9,
-            });
-            const blob = Array.isArray(converted) ? converted[0] : converted;
-            let jpegFile = new File(
-              [blob],
-              f.name.replace(/\.[^.]+$/i, '.jpg'),
-              { type: 'image/jpeg' }
-            );
-            if (jpegFile.size > maxBytesPerFile) {
-              jpegFile = await resizeImageToFit(
-                blob,
-                maxBytesPerFile,
-                jpegFile.name
-              );
-            }
-            if (jpegFile.size <= maxBytesPerFile) valid.push(jpegFile);
+            const jpegFile = await tryHeic(f);
+            if (jpegFile) valid.push(jpegFile);
+            else if (onConversionError && isHeif)
+              onConversionError('Photo too large after conversion.');
           } catch {
-            // Skip HEIC files that fail to convert
+            if (onConversionError)
+              onConversionError(
+                'Could not process HEIC/HEIF. Try Settings → Photos → Transfer to Mac or PC → Automatic to use JPEG, or choose a different photo.'
+              );
           }
         } else {
           if (f.size > maxBytesPerFile) continue;
@@ -137,7 +161,7 @@ export function ImageAttachmentPicker({
       }
       onChange(valid);
     },
-    [files, maxCount, maxBytesPerFile, allowedTypes, onChange],
+    [files, maxCount, maxBytesPerFile, allowedTypes, onChange, onConversionError],
   );
 
   const remove = React.useCallback(
