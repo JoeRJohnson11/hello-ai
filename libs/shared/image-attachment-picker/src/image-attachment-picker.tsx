@@ -16,6 +16,47 @@ function isHeicFile(file: File): boolean {
   return false;
 }
 
+/** Resize image blob to fit within maxBytes by downscaling and re-encoding. */
+async function resizeImageToFit(
+  blob: Blob,
+  maxBytes: number,
+  fileName: string
+): Promise<File> {
+  const img = await createImageBitmap(blob);
+  let { width, height } = img;
+  let quality = 0.85;
+  let out: Blob;
+
+  do {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas 2d context unavailable');
+    ctx.drawImage(img, 0, 0);
+    out = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error('toBlob failed'))),
+        'image/jpeg',
+        quality
+      );
+    });
+    if (out.size <= maxBytes) break;
+    // Reduce dimensions by 20% or quality
+    if (quality > 0.5) {
+      quality -= 0.1;
+    } else {
+      width = Math.floor(width * 0.8);
+      height = Math.floor(height * 0.8);
+      quality = 0.85;
+    }
+  } while (width > 100 && height > 100);
+
+  img.close();
+  const baseName = fileName.replace(/\.[^.]+$/i, '');
+  return new File([out], `${baseName}.jpg`, { type: 'image/jpeg' });
+}
+
 export type ImageAttachmentPickerProps = {
   files: File[];
   onChange: (files: File[]) => void;
@@ -28,7 +69,7 @@ export type ImageAttachmentPickerProps = {
 };
 
 const DEFAULT_MAX_COUNT = 4;
-const DEFAULT_MAX_BYTES = 1024 * 1024; // 1MB
+const DEFAULT_MAX_BYTES = 5 * 1024 * 1024; // 5MB (OpenAI allows 20MB; most iPhone HEIC fit)
 const DEFAULT_TYPES = [
   'image/jpeg',
   'image/png',
@@ -61,9 +102,10 @@ export function ImageAttachmentPicker({
       const combined = [...files, ...selected].slice(0, maxCount);
       const valid: File[] = [];
 
+      const HEIC_MAX_BYTES = 20 * 1024 * 1024; // Allow large HEIC (conversion + resize)
       for (const f of combined) {
-        if (f.size > maxBytesPerFile) continue;
         if (isHeicFile(f)) {
+          if (f.size > HEIC_MAX_BYTES) continue; // Too large even for conversion
           try {
             const { default: heic2any } = await import('heic2any');
             const converted = await heic2any({
@@ -72,17 +114,25 @@ export function ImageAttachmentPicker({
               quality: 0.9,
             });
             const blob = Array.isArray(converted) ? converted[0] : converted;
-            const jpegFile = new File(
+            let jpegFile = new File(
               [blob],
               f.name.replace(/\.[^.]+$/i, '.jpg'),
               { type: 'image/jpeg' }
             );
+            if (jpegFile.size > maxBytesPerFile) {
+              jpegFile = await resizeImageToFit(
+                blob,
+                maxBytesPerFile,
+                jpegFile.name
+              );
+            }
             if (jpegFile.size <= maxBytesPerFile) valid.push(jpegFile);
           } catch {
             // Skip HEIC files that fail to convert
           }
-        } else if (allowedTypes.includes(f.type)) {
-          valid.push(f);
+        } else {
+          if (f.size > maxBytesPerFile) continue;
+          if (allowedTypes.includes(f.type)) valid.push(f);
         }
       }
       onChange(valid);

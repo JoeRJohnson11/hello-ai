@@ -19,7 +19,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-const MAX_IMAGE_BYTES = 1024 * 1024; // 1MB
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB (OpenAI allows 20MB; most iPhone HEIC fit)
 
 // Allow CORS preflight (OPTIONS) - unhandled preflight can surface as 405
 export async function OPTIONS() {

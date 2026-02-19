@@ -4,7 +4,7 @@
  */
 
 const DEFAULT_MAX_COUNT = 4;
-const DEFAULT_MAX_BYTES = 1024 * 1024; // 1MB
+const DEFAULT_MAX_BYTES = 5 * 1024 * 1024; // 5MB
 const DEFAULT_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export class ImageValidationError extends Error {
