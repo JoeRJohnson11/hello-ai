@@ -18,6 +18,7 @@
   "dependencies": {
     "@hello-ai/shared-design": "workspace:*",
     "@hello-ai/shared-ui": "workspace:*",
+    "heic2any": "^0.0.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tslib": "^2.3.0"
