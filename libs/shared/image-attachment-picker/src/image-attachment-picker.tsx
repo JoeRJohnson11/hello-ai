@@ -60,27 +60,32 @@ export function ImageAttachmentPicker({
   );
 
   const accept = allowedTypes.join(',');
+  const inputId = React.useId();
+  const isDisabled = disabled || files.length >= maxCount;
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 flex-wrap justify-start">
         <input
           ref={inputRef}
+          id={inputId}
           type="file"
           accept={accept}
           multiple
           onChange={handleSelect}
-          disabled={disabled || files.length >= maxCount}
-          className="!hidden"
+          disabled={isDisabled}
+          style={{ position: 'absolute', width: 1, height: 1, opacity: 0, overflow: 'hidden' }}
           aria-label="Attach images"
           tabIndex={-1}
         />
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={() => inputRef.current?.click()}
-          disabled={disabled || files.length >= maxCount}
+        <label
+          htmlFor={inputId}
+          className={cx(
+            'inline-flex items-center justify-center rounded-xl border font-medium shadow transition-all duration-150 cursor-pointer select-none',
+            'border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-500 hover:bg-zinc-800 hover:text-zinc-100 active:scale-[0.98]',
+            'px-3 py-1.5 text-xs',
+            isDisabled && 'pointer-events-none opacity-40 cursor-not-allowed'
+          )}
           title={
             files.length >= maxCount
               ? `Maximum ${maxCount} images`
@@ -88,7 +93,7 @@ export function ImageAttachmentPicker({
           }
         >
           + Attach photo
-        </Button>
+        </label>
         {files.map((file, i) => (
           <div
             key={`${file.name}-${i}`}
