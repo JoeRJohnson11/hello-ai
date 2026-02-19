@@ -11,8 +11,8 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
-    "plugins": [{"name": "next"}],
-    "paths": {"@/*": ["./src/*"]},
+    "plugins": [{ "name": "next" }],
+    "paths": { "@/*": ["./src/*"] },
     "types": ["jest", "node"],
     "outDir": "dist",
     "rootDir": "src",
@@ -27,6 +27,33 @@
     "../../dist/apps/joe-bot/.next/types/**/*.ts",
     "next-env.d.ts"
   ],
-  "exclude": ["out-tsc", "dist", "node_modules", "jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts", ".next", "eslint.config.js", "eslint.config.cjs", "eslint.config.mjs"],
-  "references": []
+  "exclude": [
+    "out-tsc",
+    "dist",
+    "node_modules",
+    "jest.config.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    ".next",
+    "eslint.config.js",
+    "eslint.config.cjs",
+    "eslint.config.mjs"
+  ],
+  "references": [
+    {
+      "path": "../../libs/upload-utils"
+    },
+    {
+      "path": "../../libs/shared/ui"
+    },
+    {
+      "path": "../../libs/shared/design"
+    },
+    {
+      "path": "../../libs/shared/image-attachment-picker"
+    },
+    {
+      "path": "../../libs/data-persistence"
+    }
+  ]
 }

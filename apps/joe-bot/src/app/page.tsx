@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { AppHeader, Button, Loader } from '@hello-ai/shared-ui';
+import { ImageAttachmentPicker } from '@hello-ai/image-attachment-picker';
 import { tokens } from '@hello-ai/shared-design';
 
 type ChatMsg = {
@@ -33,6 +34,7 @@ export default function Page() {
     },
   ]);
   const [input, setInput] = useState('');
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,23 +78,29 @@ export default function Page() {
   }, [messages, isSending]);
 
   const canSend = useMemo(
-    () => !isSending && input.trim().length > 0,
-    [isSending, input],
+    () =>
+      !isSending && (input.trim().length > 0 || attachments.length > 0),
+    [isSending, input, attachments.length],
   );
 
   async function send() {
     const msg = input.trim();
-    if (!msg || isSending) return;
+    if ((!msg && attachments.length === 0) || isSending) return;
 
     setError(null);
     setIsSending(true);
     setInput('');
+    const filesToSend = [...attachments];
+    setAttachments([]);
 
+    const n = filesToSend.length;
+    const displayText =
+      n > 0 ? (msg ? `${msg} · ${n} photo${n > 1 ? 's' : ''}` : `${n} photo${n > 1 ? 's' : ''}`) : msg;
     const userMsg: ChatMsg = {
       id: uid(),
       role: 'user',
       ts: Date.now(),
-      text: msg,
+      text: displayText,
     };
 
     const pendingId = uid();
@@ -107,10 +115,21 @@ export default function Page() {
     setMessages((prev) => [...prev, userMsg, pendingMsg]);
 
     try {
+      const body: RequestInit['body'] =
+        filesToSend.length > 0
+          ? (() => {
+              const fd = new FormData();
+              fd.append('message', msg);
+              filesToSend.forEach((f) => fd.append('files', f));
+              return fd;
+            })()
+          : JSON.stringify({ message: msg });
+
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg }),
+        headers:
+          filesToSend.length > 0 ? {} : { 'Content-Type': 'application/json' },
+        body,
       });
 
       const payload = (await res.json().catch(() => ({}))) as {
@@ -152,6 +171,7 @@ export default function Page() {
   async function clearChat() {
     setError(null);
     setInput('');
+    setAttachments([]);
     setIsSending(false);
     try {
       await fetch('/api/messages', { method: 'DELETE' });
@@ -288,6 +308,15 @@ export default function Page() {
               </div>
             )}
 
+            <div className="mb-2 flex justify-start">
+              <ImageAttachmentPicker
+                files={attachments}
+                onChange={setAttachments}
+                maxCount={4}
+                maxBytesPerFile={1024 * 1024}
+                disabled={isSending}
+              />
+            </div>
             <div className="flex gap-2">
               <textarea
                 ref={textareaRef}
@@ -300,7 +329,7 @@ export default function Page() {
                   }
                 }}
                 placeholder="Ask anything to see what Joe would say."
-                className="min-h-[44px] flex-1 resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-base sm:text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
+                className="min-h-[44px] flex-1 min-w-0 resize-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-base sm:text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-600"
               />
 
               <Button

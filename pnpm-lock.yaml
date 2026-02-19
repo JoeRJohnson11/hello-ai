@@ -171,12 +171,18 @@ importers:
       '@hello-ai/data-persistence':
         specifier: workspace:*
         version: link:../../libs/data-persistence
+      '@hello-ai/image-attachment-picker':
+        specifier: workspace:*
+        version: link:../../libs/shared/image-attachment-picker
       '@hello-ai/shared-design':
         specifier: workspace:*
         version: link:../../libs/shared/design
       '@hello-ai/shared-ui':
         specifier: workspace:*
         version: link:../../libs/shared/ui
+      '@hello-ai/upload-utils':
+        specifier: workspace:*
+        version: link:../../libs/upload-utils
       '@libsql/client':
         specifier: ^0.14.0
         version: 0.14.0
@@ -280,6 +286,24 @@ importers:
         specifier: ^2.3.0
         version: 2.8.1
 
+  libs/shared/image-attachment-picker:
+    dependencies:
+      '@hello-ai/shared-design':
+        specifier: workspace:*
+        version: link:../design
+      '@hello-ai/shared-ui':
+        specifier: workspace:*
+        version: link:../ui
+      react:
+        specifier: 19.2.4
+        version: 19.2.4
+      react-dom:
+        specifier: 19.2.4
+        version: 19.2.4(react@19.2.4)
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
+
   libs/shared/ui:
     dependencies:
       tslib:
@@ -287,6 +311,12 @@ importers:
         version: 2.8.1
 
   libs/todo/data-access:
+    dependencies:
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
+
+  libs/upload-utils:
     dependencies:
       tslib:
         specifier: ^2.3.0

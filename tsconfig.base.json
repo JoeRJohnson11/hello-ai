@@ -26,7 +26,15 @@
       "@hello-ai/todo-data-access": ["libs/todo/data-access/src/index.ts"],
       "@hello-ai/todo-data-access/*": ["libs/todo/data-access/src/*"],
       "@hello-ai/data-persistence": ["libs/data-persistence/src/index.ts"],
-      "@hello-ai/data-persistence/*": ["libs/data-persistence/src/*"]
+      "@hello-ai/data-persistence/*": ["libs/data-persistence/src/*"],
+      "@hello-ai/upload-utils": ["libs/upload-utils/src/index.ts"],
+      "@hello-ai/upload-utils/*": ["libs/upload-utils/src/*"],
+      "@hello-ai/image-attachment-picker": [
+        "libs/shared/image-attachment-picker/src/index.ts"
+      ],
+      "@hello-ai/image-attachment-picker/*": [
+        "libs/shared/image-attachment-picker/src/*"
+      ]
     }
   }
 }

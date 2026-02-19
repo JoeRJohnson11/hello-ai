@@ -8,12 +8,18 @@ import {
   getPersonFacts,
   seedPersonFactsIfEmpty,
 } from '@hello-ai/data-persistence';
+import {
+  parseChatFormData,
+  validateImageFiles,
+  filesToBase64DataUrls,
+  ImageValidationError,
+} from '@hello-ai/upload-utils';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-type ChatRequest = { message?: string };
+const MAX_IMAGE_BYTES = 1024 * 1024; // 1MB
 
 // Allow CORS preflight (OPTIONS) - unhandled preflight can surface as 405
 export async function OPTIONS() {
@@ -83,14 +89,33 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = (await req.json()) as ChatRequest;
-    const msg = (body.message ?? '').trim();
+    const parsed = await parseChatFormData(req);
+    const msg = parsed.message.trim();
+    const files = parsed.files;
 
-    if (!msg) {
-      return new Response(JSON.stringify({ error: "Missing 'message'." }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
+    if (!msg && files.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Missing 'message' or image attachments." }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    }
+
+    try {
+      validateImageFiles(files, {
+        maxCount: 4,
+        maxBytesPerFile: MAX_IMAGE_BYTES,
       });
+    } catch (e) {
+      if (e instanceof ImageValidationError) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      throw e;
     }
 
     await ensureChatMigrations();
@@ -99,10 +124,19 @@ export async function POST(req: Request) {
 
     // CI-friendly: don't call external services in CI
     if (process.env.CI === 'true') {
+      const n = files.length;
+      const contentToStore =
+        n > 0 ? (msg ? `${msg} · ${n} photo${n > 1 ? 's' : ''}` : `${n} photo${n > 1 ? 's' : ''}`) : msg;
       const userId = `ci-${Date.now()}`;
-      await insertChatMessage(userId, sessionId, 'user', msg, Date.now());
-      await insertChatMessage(`ci-${Date.now()}-r`, sessionId, 'assistant', `CI echo: ${msg}`, Date.now());
-      return new Response(JSON.stringify({ text: `CI echo: ${msg}` }), {
+      await insertChatMessage(userId, sessionId, 'user', contentToStore, Date.now());
+      await insertChatMessage(
+        `ci-${Date.now()}-r`,
+        sessionId,
+        'assistant',
+        `CI echo: ${contentToStore}`,
+        Date.now(),
+      );
+      return new Response(JSON.stringify({ text: `CI echo: ${contentToStore}` }), {
         headers: {
           'Content-Type': 'application/json',
           'Set-Cookie': sessionCookieHeader(sessionId),
@@ -128,7 +162,10 @@ export async function POST(req: Request) {
     const assistantMsgId = crypto.randomUUID();
     const now = Date.now();
 
-    await insertChatMessage(userMsgId, sessionId, 'user', msg, now);
+    const n = files.length;
+    const contentToStore =
+      n > 0 ? (msg ? `${msg} · ${n} photo${n > 1 ? 's' : ''}` : `${n} photo${n > 1 ? 's' : ''}`) : msg;
+    await insertChatMessage(userMsgId, sessionId, 'user', contentToStore, now);
 
     const client = new OpenAI({ apiKey });
     const opening = nextOpeningPhrase();
@@ -140,7 +177,32 @@ export async function POST(req: Request) {
           '\n'
         : '';
 
-    const chatHistory = history.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+    const visionBlock =
+      files.length > 0
+        ? '\n\nThe user may attach images. When they do, analyze the image(s) and incorporate what you see into your response. Be concise about visual details.\n'
+        : '';
+
+    const chatHistory = history.map((m) => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    }));
+
+    let userContent: string | OpenAI.Chat.Completions.ChatCompletionContentPart[];
+    if (files.length > 0) {
+      const imageUrls = await filesToBase64DataUrls(files);
+      userContent = [
+        {
+          type: 'text' as const,
+          text: msg || 'What do you see in these images?',
+        },
+        ...imageUrls.map((url) => ({
+          type: 'image_url' as const,
+          image_url: { url },
+        })),
+      ];
+    } else {
+      userContent = msg;
+    }
 
     const completion = await client.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -159,10 +221,11 @@ export async function POST(req: Request) {
             'Style notes:\n' +
             '- Keep answers tight and practical.\n' +
             '- Avoid buzzwords unless they add clarity.\n' +
+            visionBlock +
             factsBlock,
         },
         ...chatHistory,
-        { role: 'user', content: msg },
+        { role: 'user', content: userContent },
       ],
     });
 

@@ -1,0 +1,29 @@
+{
+  "name": "@hello-ai/image-attachment-picker",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@hello-ai/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@hello-ai/shared-design": "workspace:*",
+    "@hello-ai/shared-ui": "workspace:*",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tslib": "^2.3.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  }
+}
