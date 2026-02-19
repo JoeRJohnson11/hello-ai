@@ -1,0 +1,10 @@
+{
+  "targets": {
+    "build": {
+      "inputs": ["production", "^production", { "externalDependencies": ["tslib", "react", "react-dom"] }]
+    },
+    "typecheck": {
+      "inputs": ["production", "^production", { "externalDependencies": ["tslib", "react", "react-dom"] }]
+    }
+  }
+}

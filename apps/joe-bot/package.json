@@ -4,8 +4,10 @@
   "private": true,
   "dependencies": {
     "@hello-ai/data-persistence": "workspace:*",
+    "@hello-ai/image-attachment-picker": "workspace:*",
     "@hello-ai/shared-design": "workspace:*",
     "@hello-ai/shared-ui": "workspace:*",
+    "@hello-ai/upload-utils": "workspace:*",
     "@libsql/client": "^0.14.0",
     "drizzle-orm": "^0.45.1",
     "next": "~16.1.6",

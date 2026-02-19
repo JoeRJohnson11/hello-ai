@@ -14,6 +14,7 @@ module.exports = {
   content: [
     './{src,pages,components,app}/**/*.{ts,tsx,js,jsx,html}',
     '../../libs/shared/ui/src/**/*.{ts,tsx}',
+    '../../libs/shared/image-attachment-picker/src/**/*.{ts,tsx}',
     '!./{src,pages,components,app}/**/*.{stories,spec}.{ts,tsx,js,jsx,html}',
     //     ...createGlobPatternsForDependencies(__dirname)
   ],

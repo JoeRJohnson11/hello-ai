@@ -2,6 +2,20 @@
 
 /* Ensure shared-ui component classes are included (Button, HomeLink, etc.) */
 @source "../../../../libs/shared/ui/src/**/*.{ts,tsx}";
+@source "../../../../libs/shared/image-attachment-picker/src/**/*.{ts,tsx}";
+
+/* Hide file input "Choose Files No file chosen" - native browser UI */
+input[type="file"][aria-label="Attach images"] {
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
 
 /* ---- Base document styles ---- */
 html,

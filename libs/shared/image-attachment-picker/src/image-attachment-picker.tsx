@@ -1,0 +1,134 @@
+'use client';
+
+import * as React from 'react';
+import { Button } from '@hello-ai/shared-ui';
+import { tokens } from '@hello-ai/shared-design';
+
+export type ImageAttachmentPickerProps = {
+  files: File[];
+  onChange: (files: File[]) => void;
+  maxCount?: number;
+  maxBytesPerFile?: number;
+  allowedTypes?: string[];
+  disabled?: boolean;
+  /** Validation error message to display */
+  error?: string | null;
+};
+
+const DEFAULT_MAX_COUNT = 4;
+const DEFAULT_MAX_BYTES = 1024 * 1024; // 1MB
+const DEFAULT_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ');
+}
+
+export function ImageAttachmentPicker({
+  files,
+  onChange,
+  maxCount = DEFAULT_MAX_COUNT,
+  maxBytesPerFile = DEFAULT_MAX_BYTES,
+  allowedTypes = DEFAULT_TYPES,
+  disabled = false,
+  error,
+}: ImageAttachmentPickerProps) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleSelect = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = Array.from(e.target.files ?? []);
+      e.target.value = '';
+      if (selected.length === 0) return;
+
+      const combined = [...files, ...selected].slice(0, maxCount);
+      const valid: File[] = [];
+      for (const f of combined) {
+        if (f.size <= maxBytesPerFile && allowedTypes.includes(f.type)) {
+          valid.push(f);
+        }
+      }
+      onChange(valid);
+    },
+    [files, maxCount, maxBytesPerFile, allowedTypes, onChange],
+  );
+
+  const remove = React.useCallback(
+    (index: number) => {
+      onChange(files.filter((_, i) => i !== index));
+    },
+    [files, onChange],
+  );
+
+  const accept = allowedTypes.join(',');
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2 flex-wrap justify-start">
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          multiple
+          onChange={handleSelect}
+          disabled={disabled || files.length >= maxCount}
+          className="!hidden"
+          aria-label="Attach images"
+          tabIndex={-1}
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={() => inputRef.current?.click()}
+          disabled={disabled || files.length >= maxCount}
+          title={
+            files.length >= maxCount
+              ? `Maximum ${maxCount} images`
+              : 'Attach images'
+          }
+        >
+          + Attach photo
+        </Button>
+        {files.map((file, i) => (
+          <div
+            key={`${file.name}-${i}`}
+            className="relative group flex-shrink-0"
+          >
+            <div
+              className={cx(
+                'w-12 h-12 rounded-lg overflow-hidden border border-zinc-800 bg-zinc-900',
+                'flex items-center justify-center',
+              )}
+              style={{ borderRadius: tokens.radius.sm }}
+            >
+              <img
+                src={URL.createObjectURL(file)}
+                alt={file.name}
+                className="w-full h-full object-cover"
+                onLoad={(e) =>
+                  URL.revokeObjectURL((e.target as HTMLImageElement).src)
+                }
+              />
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="absolute -top-2 -right-2 w-6 h-6 min-w-0 p-0 rounded-full text-xs"
+              onClick={() => remove(i)}
+              disabled={disabled}
+              aria-label={`Remove ${file.name}`}
+            >
+              ×
+            </Button>
+          </div>
+        ))}
+      </div>
+      {error && (
+        <p className="text-sm text-red-400" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
