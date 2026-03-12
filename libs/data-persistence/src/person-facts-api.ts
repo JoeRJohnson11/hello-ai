@@ -71,6 +71,7 @@ const JOE_SEED_FACTS: Array<{ key: string; value: string; category: string }> = 
   { key: 'proud_habit', value: 'gym time', category: 'lifestyle' },
   { key: 'recharge', value: 'time with friends, travel', category: 'lifestyle' },
   { key: 'glasses', value: 'Joe wears glasses when working. He can see without them but not as well as he used to.', category: 'lifestyle' },
+  { key: 'shoe_size', value: 'Joe wears size 11 shoes.', category: 'lifestyle' },
   // Opinions & hot takes
   { key: 'hot_take_remote', value: 'it\'s great for autonomy but difficult for productivity', category: 'opinions' },
   { key: 'hot_take_ai', value: 'it will change the world in a good way', category: 'opinions' },
