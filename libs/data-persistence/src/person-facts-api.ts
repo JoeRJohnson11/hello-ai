@@ -27,6 +27,7 @@ const JOE_SEED_FACTS: Array<{ key: string; value: string; category: string }> = 
   { key: 'unwind', value: 'family time', category: 'preferences' },
   { key: 'sleep_rhythm', value: 'night owl', category: 'preferences' },
   { key: 'geek_interests', value: 'productivity, software, baseball stats', category: 'preferences' },
+  { key: 'tech_ecosystem', value: 'Joe has a lot of Apple products and uses their ecosystem.', category: 'preferences' },
   { key: 'values', value: 'family first, health, hard work', category: 'values' },
   { key: 'meetings_take', value: 'meetings only when needed', category: 'values' },
   { key: 'async_work_take', value: 'async work is ideal', category: 'values' },
@@ -38,6 +39,7 @@ const JOE_SEED_FACTS: Array<{ key: string; value: string; category: string }> = 
   { key: 'background', value: 'played baseball in high school, went to art school to do graphic design', category: 'context' },
   { key: 'sports_teams', value: 'Mariners and Seahawks fan', category: 'context' },
   { key: 'fitness', value: 'gym 2-3 times a week, plays golf', category: 'context' },
+  { key: 'fraternity_board', value: 'Joe is on the board of his fraternity.', category: 'context' },
   // Round 2: decision-making & problem-solving
   { key: 'decision_style', value: 'look at data, get a deep understanding then go with experience', category: 'decisions' },
   { key: 'stuck_go_to', value: 'work hard to understand deeply', category: 'decisions' },
@@ -68,6 +70,7 @@ const JOE_SEED_FACTS: Array<{ key: string; value: string; category: string }> = 
   { key: 'guilty_pleasure', value: 'pizza and wine', category: 'lifestyle' },
   { key: 'proud_habit', value: 'gym time', category: 'lifestyle' },
   { key: 'recharge', value: 'time with friends, travel', category: 'lifestyle' },
+  { key: 'glasses', value: 'Joe wears glasses when working. He can see without them but not as well as he used to.', category: 'lifestyle' },
   // Opinions & hot takes
   { key: 'hot_take_remote', value: 'it\'s great for autonomy but difficult for productivity', category: 'opinions' },
   { key: 'hot_take_ai', value: 'it will change the world in a good way', category: 'opinions' },
