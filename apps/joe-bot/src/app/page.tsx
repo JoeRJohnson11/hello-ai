@@ -183,7 +183,12 @@ export default function Page() {
         id: uid(),
         role: 'assistant',
         ts: Date.now(),
-        text: 'Fresh slate. What are you trying to ship?',
+        text: (
+          <>
+            Joe&apos;s still <em>bot</em> here right now. Can I help?
+          </>
+        ),
+        kind: 'away',
       },
     ]);
     setTimeout(() => textareaRef.current?.focus(), 0);
