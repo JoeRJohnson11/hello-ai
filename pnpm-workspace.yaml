@@ -1,5 +1,10 @@
 packages:
-  - 'apps/*'
+  - 'apps/joe-bot'
+  - 'apps/joe-bot-e2e'
+  - 'apps/landing-page'
+  - 'apps/landing-page-e2e'
+  - 'apps/todo-app'
+  - 'apps/todo-app-e2e'
   - 'libs/shared/*'
   - 'libs/todo/*'
   - 'libs/data-persistence'
