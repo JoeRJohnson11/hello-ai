@@ -57,22 +57,22 @@ const OPENING_PHRASES = [
   "If Joe were optimizing for results, he'd",
   "Joe's short answer is to",
   'The Joe way to think about this is to',
-  "As a followr of Joe, I'd",
+  "As a follower of Joe, I'd",
   "Some people say Joe isn't God. They are wrong, that's why I know he'd",
+  "Joe's take?",
+  "If I had to guess what Joe would say,",
+  "The Joe lens on this:",
+  "Joe would probably tell you to",
+  "In Joe's world, you'd",
+  "Joe-style answer:",
+  "What would Joe do? He'd",
+  "Joe vibes say",
+  "Channeling Joe for this one:",
 ] as const;
 
-// In-memory rotation per server instance (fine for this toy app; resets on cold starts).
-const __JOEBOT_IDX_KEY = '__JOEBOT_OPENING_PHRASE_IDX__';
-
 function nextOpeningPhrase(): string {
-  const g = globalThis as unknown as Record<string, unknown>;
-  const current =
-    typeof g[__JOEBOT_IDX_KEY] === 'number'
-      ? (g[__JOEBOT_IDX_KEY] as number)
-      : -1;
-  const next = (current + 1) % OPENING_PHRASES.length;
-  g[__JOEBOT_IDX_KEY] = next;
-  return OPENING_PHRASES[next];
+  const idx = Math.floor(Math.random() * OPENING_PHRASES.length);
+  return OPENING_PHRASES[idx];
 }
 
 export async function POST(req: Request) {
