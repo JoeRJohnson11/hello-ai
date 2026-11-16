@@ -60,3 +60,8 @@ test-output
 libs/data-persistence/data/*.db
 .env.local
 .env*.local
+
+.claude/worktrees
+.nx/polygraph
+.nx/self-healing
+.nx/migrate-runs

@@ -21,7 +21,8 @@
     },
     "outDir": "dist",
     "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+    "ignoreDeprecations": "6.0"
   },
   "include": [
     "src/**/*.ts",
@@ -47,19 +48,13 @@
   ],
   "references": [
     {
-      "path": "../../libs/integrations/slack"
-    },
-    {
-      "path": "../../libs/shared/ui"
+      "path": "../../libs/data-persistence"
     },
     {
       "path": "../../libs/shared/design"
     },
     {
-      "path": "../../libs/integrations/google-calendar"
-    },
-    {
-      "path": "../../libs/data-persistence"
+      "path": "../../libs/shared/ui"
     }
   ]
 }
