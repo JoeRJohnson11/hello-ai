@@ -38,6 +38,12 @@
     },
     {
       "path": "./libs/upload-utils"
+    },
+    {
+      "path": "./apps/admin"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0"
+  }
 }

@@ -35,6 +35,10 @@
       "@hello-ai/image-attachment-picker/*": [
         "libs/shared/image-attachment-picker/src/*"
       ]
-    }
+    },
+    "noUncheckedSideEffectImports": false,
+    "types": ["*"],
+    "esModuleInterop": false,
+    "ignoreDeprecations": "6.0"
   }
 }

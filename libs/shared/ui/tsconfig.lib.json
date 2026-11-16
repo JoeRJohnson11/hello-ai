@@ -10,7 +10,8 @@
     "moduleResolution": "bundler",
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "types": ["node"]
+    "types": ["node"],
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "references": []

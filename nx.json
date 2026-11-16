@@ -12,7 +12,14 @@
       "!{projectRoot}/src/test-setup.[jt]s",
       "!{projectRoot}/test-setup.[jt]s"
     ],
-    "sharedGlobals": [{ "runtime": "node -v" }, { "runtime": "pnpm -v" }]
+    "sharedGlobals": [
+      {
+        "runtime": "node -v"
+      },
+      {
+        "runtime": "pnpm -v"
+      }
+    ]
   },
   "nxCloudId": "6afb693d82c20702dc33fd15",
   "plugins": [
@@ -72,5 +79,8 @@
         "linter": "eslint"
       }
     }
+  },
+  "affected": {
+    "legacy": true
   }
 }
