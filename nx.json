@@ -14,7 +14,7 @@
     ],
     "sharedGlobals": [{ "runtime": "node -v" }, { "runtime": "pnpm -v" }]
   },
-  "nxCloudId": "68cd99327c8b4045e0d56253",
+  "nxCloudId": "6afb693d82c20702dc33fd15",
   "plugins": [
     {
       "plugin": "@nx/js/typescript",
