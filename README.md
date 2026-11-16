@@ -29,18 +29,20 @@ For chat and todo persistence, create a Turso database and set `TURSO_DATABASE_U
 
 ### E2E against Vercel Preview (optional)
 
-On pull requests, CI can run E2E tests against Vercel Preview URLs instead of local dev servers. To enable:
+CI runs on Nx Cloud from `.nx/pipelines/ci.yaml`. On pull requests it can run E2E tests against Vercel Preview URLs instead of local dev servers. Add these on the Nx Cloud workspace Environment variables page:
 
-1. **GitHub repository variables** (Settings > Secrets and variables > Actions):
+1. **Variables**:
    - `VERCEL_PREVIEW_ENABLED` = `true`
    - `VERCEL_PROJECT_ID_LANDING_PAGE` = project ID from Vercel (Project Settings > General)
    - `VERCEL_PROJECT_ID_JOE_BOT` = project ID
    - `VERCEL_PROJECT_ID_TODO_APP` = project ID
    - `VERCEL_TEAM_ID` = team ID (if using a team; from vercel.com/teams)
 
-2. **GitHub secret**: `VERCEL_TOKEN` (create at vercel.com/account/tokens)
+2. **Secret**: `VERCEL_TOKEN` (create at vercel.com/account/tokens)
 
-3. Grant the token read access to deployments.
+3. Grant the token read access to deployments. Pull requests from forks do not receive these values.
+
+The pull request status check is `Nx Cloud: CI`. Update required checks if branch protection still expects the GitHub Actions check.
 
 ### Landing page project links
 

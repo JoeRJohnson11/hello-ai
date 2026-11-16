@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
-# Waits for Vercel preview deployments and outputs BASE_URL_* for each project.
+# Waits for Vercel preview deployments and writes BASE_URL_* for later steps.
 # Requires: VERCEL_TOKEN, GIT_REF, and VERCEL_PROJECT_ID_* for each app.
 # Optional: VERCEL_TEAM_ID (for team projects)
 #
-# Usage: source this script or run with eval to export vars, e.g.:
-#   . .github/scripts/wait-for-vercel-preview-urls.sh
-#   # or from workflow:
-#   - run: . ./.github/scripts/wait-for-vercel-preview-urls.sh
+# Usage:
+#   . ./tools/ci/wait-for-vercel-preview-urls.sh
 
 set -euo pipefail
 
 VERCEL_TOKEN="${VERCEL_TOKEN:?VERCEL_TOKEN required}"
 GIT_REF="${GIT_REF:?GIT_REF required (branch name)}"
-MAX_WAIT="${MAX_WAIT:-300}"  # seconds, default 5 min
-POLL_INTERVAL="${POLL_INTERVAL:-10}"  # seconds
+MAX_WAIT="${MAX_WAIT:-300}" # seconds, default 5 min
+POLL_INTERVAL="${POLL_INTERVAL:-10}" # seconds
+ENV_FILE="${NX_CLOUD_ENV:-${GITHUB_ENV:-}}"
+
+if [[ -z "${ENV_FILE}" ]]; then
+  echo "NX_CLOUD_ENV or GITHUB_ENV is required" >&2
+  exit 1
+fi
 
 API_BASE="https://api.vercel.com/v6"
 TEAM_PARAM=""
@@ -63,11 +67,11 @@ wait_for_project() {
 
 # Export BASE_URL_* for each configured project (skip on failure; Playwright falls back to webServer)
 if [[ -n "${VERCEL_PROJECT_ID_LANDING_PAGE:-}" ]]; then
-  url=$(wait_for_project "$VERCEL_PROJECT_ID_LANDING_PAGE" "landing-page") && echo "BASE_URL_LANDING_PAGE=${url}" >> "$GITHUB_ENV" || true
+  url=$(wait_for_project "$VERCEL_PROJECT_ID_LANDING_PAGE" "landing-page") && echo "BASE_URL_LANDING_PAGE=${url}" >> "$ENV_FILE" || true
 fi
 if [[ -n "${VERCEL_PROJECT_ID_JOE_BOT:-}" ]]; then
-  url=$(wait_for_project "$VERCEL_PROJECT_ID_JOE_BOT" "joe-bot") && echo "BASE_URL_JOE_BOT=${url}" >> "$GITHUB_ENV" || true
+  url=$(wait_for_project "$VERCEL_PROJECT_ID_JOE_BOT" "joe-bot") && echo "BASE_URL_JOE_BOT=${url}" >> "$ENV_FILE" || true
 fi
 if [[ -n "${VERCEL_PROJECT_ID_TODO_APP:-}" ]]; then
-  url=$(wait_for_project "$VERCEL_PROJECT_ID_TODO_APP" "todo-app") && echo "BASE_URL_TODO_APP=${url}" >> "$GITHUB_ENV" || true
+  url=$(wait_for_project "$VERCEL_PROJECT_ID_TODO_APP" "todo-app") && echo "BASE_URL_TODO_APP=${url}" >> "$ENV_FILE" || true
 fi

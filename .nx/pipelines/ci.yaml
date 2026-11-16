@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=https://cloud.nx.app/nx-cloud/static/schemas/workflow.schema.json
+name: CI
+
+on:
+  pull-requests:
+    event: PR
+  main-pushes:
+    event: PUSH
+    branches: [main]
+  feature-pushes:
+    event: PUSH
+    branches: ['feature/**']
+
+env:
+  CI: 'true'
+  VERCEL_PREVIEW_ENABLED: ${{ vars.VERCEL_PREVIEW_ENABLED || 'false' }}
+
+worker-templates:
+  ci:
+    # Sized like the old distribution config: 3 agents under 25%, more as the
+    # changeset grows, 8 at the top. Nx Cloud CI has three sizes, so the old
+    # 4-agent and 6-agent bands collapse into medium.
+    small:
+      count: 3 linux-medium-js
+      workload: 25%
+    medium:
+      count: 6 linux-medium-js
+      workload: 75%
+    large: 8 linux-medium-js
+    stop-after:
+      - lint
+      - test
+      - build
+
+jobs:
+  main:
+    runs-on: linux-medium-js
+    workers: ci
+    steps:
+      - name: Run lint, test, and build
+        run: pnpm nx affected -t lint test build
+
+      # E2E stays on this machine. Preview URLs are written in the next step,
+      # and the main-job worker does not see step env. Browsers are not on the
+      # linux-medium-js workers.
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Wait for Vercel Preview URLs
+        if: nxcloud.event_name == 'pull_request' && env.VERCEL_PREVIEW_ENABLED == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          VERCEL_PROJECT_ID_LANDING_PAGE: ${{ vars.VERCEL_PROJECT_ID_LANDING_PAGE }}
+          VERCEL_PROJECT_ID_JOE_BOT: ${{ vars.VERCEL_PROJECT_ID_JOE_BOT }}
+          VERCEL_PROJECT_ID_TODO_APP: ${{ vars.VERCEL_PROJECT_ID_TODO_APP }}
+          VCS_TOKEN: ${{ secrets.NX_CLOUD_VCS_TOKEN }}
+        run: |
+          pr="${NX_CLOUD_REF#refs/pull/}"
+          pr="${pr%/merge}"
+          GIT_REF=$(curl -fsS \
+            -H "Authorization: Bearer ${VCS_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${NX_CLOUD_REPOSITORY}/pulls/${pr}" \
+            | python3 -c 'import json,sys; print(json.load(sys.stdin)["head"]["ref"])')
+          export GIT_REF
+          . ./tools/ci/wait-for-vercel-preview-urls.sh
+
+      - name: Run E2E tests
+        run: |
+          if [ "${VERCEL_PREVIEW_ENABLED:-false}" = 'true' ] && [ "${NX_CLOUD_EVENT_NAME}" = 'pull_request' ]; then
+            NX_CLOUD_DISTRIBUTED_EXECUTION=false pnpm nx affected -t e2e-preview
+          else
+            NX_CLOUD_DISTRIBUTED_EXECUTION=false pnpm nx affected -t e2e
+          fi
