@@ -21,7 +21,7 @@
       }
     ]
   },
-  "nxCloudId": "6afb693d82c20702dc33fd15",
+  "nxCloudId": "6afc8c711ad0c8e0fe427612",
   "plugins": [
     {
       "plugin": "@nx/js/typescript",
